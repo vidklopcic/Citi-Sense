@@ -5,9 +5,14 @@ import com.google.maps.android.clustering.ClusterItem;
 
 public class ClusterStation implements ClusterItem {
     private final LatLng mPosition;
-
-    public ClusterStation(double lat, double lng) {
+    public String mId;
+    public ClusterStation(double lat, double lng, String name) {
         mPosition = new LatLng(lat, lng);
+        mId = name;
+    }
+
+    public String getId() {
+        return mId;
     }
 
     @Override

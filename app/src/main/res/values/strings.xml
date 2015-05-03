@@ -2,4 +2,6 @@
     <string name="app_name">Citi-Sense</string>
     <string name="title_activity_map">Map</string>
     <string name="search_hint">Search</string>
+    <string name="shared_references_name">CitiSenseGeneralPreferences</string>
+    <string name="last_location_key">last_location</string>
 </resources>
