@@ -8,11 +8,13 @@
     sothree:umanoPanelHeight="@dimen/pullup_panel_height"
     sothree:umanoShadowHeight="5dp"
     sothree:umanoFadeColor="@color/transparent"
-    sothree:umanoOverlay="true">
+    sothree:umanoOverlay="false"
+    sothree:umanoAnchorPoint="0.56"
+    sothree:umanoParalaxOffset="250dp">
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingBottom="@dimen/pullup_panel_height">
+        >
         <fragment xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
             android:layout_height="match_parent" android:id="@+id/map" tools:context=".MapActivity"
@@ -21,7 +23,6 @@
             android:layout_width="match_parent"
             android:layout_height="65dp"
             android:orientation="horizontal"
-            android:layout_margin="5dp"
             android:background="@drawable/card">
             <ImageView
                 android:layout_width="wrap_content"
@@ -50,7 +51,18 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/pullup_bg">
+        android:background="@color/pullup_bg"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/pullup_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Your location"
+            android:textSize="@dimen/title_size"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="10dp"
+            android:textColor="#000"
+            />
     </LinearLayout>
 
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>

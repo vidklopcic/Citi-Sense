@@ -14,6 +14,7 @@ public class MainActivity extends MapBaseActivity {
 
     @Override
     protected void mapClicked(LatLng latLng) {
+        removePointOfInterest();
 
     }
 
@@ -24,6 +25,16 @@ public class MainActivity extends MapBaseActivity {
 
     @Override
     protected void mapLongClicked(LatLng latLng) {
-        mPointOfInterestMarker = addMarker(latLng);
+        setPointOfInterest(latLng);
+        setPullupTitle(latLng);
+        centerMap(latLng);
+    }
+
+    @Override
+    protected void markerClicked(Marker marker) {
+        if (marker.getSnippet() != null) {
+            removePointOfInterest();
+        }
+        mPullupTitle.setText(marker.getTitle());
     }
 }

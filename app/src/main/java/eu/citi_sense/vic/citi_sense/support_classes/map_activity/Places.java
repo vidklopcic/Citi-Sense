@@ -1,8 +1,36 @@
 package eu.citi_sense.vic.citi_sense.support_classes.map_activity;
 
+import android.content.Context;
+import android.location.Address;
+import android.location.Geocoder;
+
 import com.google.android.gms.maps.model.LatLng;
 
-public class Distance {
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+
+public class Places {
+    Context mContext;
+    public Places(Context context) {
+        mContext = context;
+    }
+
+    public String getAddress(Double lat, Double lon) {
+        Geocoder geocoder = new Geocoder(mContext, Locale.ENGLISH);
+        String address = "Somewhere";
+        List<Address> addresses = null;
+        try {
+            addresses = geocoder.getFromLocation(lat, lon, 1);
+            if (addresses != null) {
+                Address returnedAddress = addresses.get(0);
+                address = returnedAddress.getAddressLine(0);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return address;
+    }
     public LatLng getClosest(LatLng[] places, LatLng location) {
         double currentMinLocation = Double.MAX_VALUE;
         LatLng result = null;

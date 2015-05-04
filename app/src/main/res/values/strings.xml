@@ -4,4 +4,5 @@
     <string name="search_hint">Search</string>
     <string name="shared_references_name">CitiSenseGeneralPreferences</string>
     <string name="last_location_key">last_location</string>
+    <string name="pullup_title_your_location">Your Location</string>
 </resources>

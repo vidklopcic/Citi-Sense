@@ -4,15 +4,15 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -21,23 +21,31 @@ import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.ArrayList;
 import java.util.Map;
+
 import eu.citi_sense.vic.citi_sense.global.GlobalVariables;
 import eu.citi_sense.vic.citi_sense.support_classes.map_activity.ClusterStation;
+import eu.citi_sense.vic.citi_sense.support_classes.map_activity.Places;
 
 public abstract class MapBaseActivity extends FragmentActivity {
     public GoogleMap mMap; // Might be null if Google Play services APK is not available.
-    private ClusterManager<ClusterStation> mClusterManager;
     public GlobalVariables mGlobalVariables;
+    public Marker mPointOfInterestMarker = null;
+    public Places mPlaces;
+    public TextView mPullupTitle;
+
+    private ClusterManager<ClusterStation> mClusterManager;
     private SharedPreferences mSharedPreferences;
     private SharedPreferences.Editor mPreferencesEditor;
     private Marker mCurrentLocationMarker = null;
-    public Marker mPointOfInterestMarker = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
+        mPullupTitle = (TextView) findViewById(R.id.pullup_title);
+
+        mPlaces = new Places(this);
         mGlobalVariables = (GlobalVariables) getApplicationContext();
         mSharedPreferences = getSharedPreferences(
                 getString(R.string.shared_references_name), MODE_PRIVATE
@@ -66,14 +74,29 @@ public abstract class MapBaseActivity extends FragmentActivity {
     protected abstract void mapClicked(LatLng latLng);
     protected abstract void locationChanged(Location location);
     protected abstract void mapLongClicked(LatLng latLng);
+    protected abstract void markerClicked(Marker marker);
 
+    public boolean removePointOfInterest() {
+        if (mPointOfInterestMarker != null) {
+            mPointOfInterestMarker.remove();
+            mPointOfInterestMarker = null;
+            mPullupTitle.setText(null);
+            mPullupTitle.invalidate();
+            mPullupTitle.requestLayout();
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public void setPointOfInterest(LatLng latLng) {
+        mPointOfInterestMarker = addMarker(latLng, "...", null);
+        mPullupTitle.setText("...");
+    }
     private void setUpListeners() {
         GoogleMap.OnMapLongClickListener onMapLongClickListener = new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
-                if (mPointOfInterestMarker != null) {
-                    mPointOfInterestMarker.remove();
-                }
+                removePointOfInterest();
                 mapLongClicked(latLng);
             }
         };
@@ -94,10 +117,15 @@ public abstract class MapBaseActivity extends FragmentActivity {
                 if (mGlobalVariables.Map.location == null) {
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
                 }
+                if (mGlobalVariables.Map.moveCameraWithLocation) {
+                    mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+                }
                 if (mCurrentLocationMarker == null) {
                     MarkerOptions markerOptions = new MarkerOptions()
                             .position(latLng)
-                            .alpha(0);
+                            .alpha(0)
+                            .title(getString(R.string.pullup_title_your_location))
+                            .snippet("your-location");
                     mCurrentLocationMarker = mMap.addMarker(markerOptions);
                 }
                 mCurrentLocationMarker.setPosition(latLng);
@@ -131,20 +159,27 @@ public abstract class MapBaseActivity extends FragmentActivity {
 
             @Override
             public boolean onMarkerClick(Marker marker) {
-                Log.d("asdfasdf", marker.getId());
-                return false;
+                mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
+                markerClicked(marker);
+                return true;
             }
         };
         mMap.setOnMarkerClickListener(onMarkerClickListener);
 
     }
 
+    public void centerMap(LatLng position) {
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(position);
+        mMap.animateCamera(cameraUpdate);
+    }
+
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
-            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-                    .getMap();
+            SupportMapFragment mapFragment = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map));
+            mapFragment.setRetainInstance(true);
+            mMap = mapFragment.getMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
                 setUpMap();
@@ -162,7 +197,7 @@ public abstract class MapBaseActivity extends FragmentActivity {
     }
 
     private void setUpClusterer() {
-        mClusterManager = new ClusterManager<ClusterStation>(this, mMap);
+        mClusterManager = new ClusterManager<>(this, mMap);
         updateStations();
     }
 
@@ -176,10 +211,30 @@ public abstract class MapBaseActivity extends FragmentActivity {
         }
     }
 
-    public Marker addMarker(LatLng position) {
+    public Marker addMarker(LatLng position, String title, String id) {
         MarkerOptions markerOptions = new MarkerOptions()
-                .position(position);
+                .position(position)
+                .title(title)
+                .snippet(id);
         return mMap.addMarker(markerOptions);
     }
 
+    public void setPullupTitle(LatLng position) {
+        new setPullupTitle().execute(position);
+    }
+
+    class setPullupTitle extends AsyncTask<LatLng, Void, String> {
+        @Override
+        protected String doInBackground(LatLng... params) {
+            double lat = params[0].latitude;
+            double lon = params[0].longitude;
+            return mPlaces.getAddress(lat, lon);
+        }
+
+        @Override
+        protected void onPostExecute(String address) {
+            mPullupTitle.setText(address);
+            mPointOfInterestMarker.setTitle(address);
+        }
+    }
 }
