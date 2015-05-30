@@ -1,12 +1,15 @@
 package eu.citi_sense.vic.citi_sense;
 
 import android.content.SharedPreferences;
+import android.graphics.Point;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.view.Display;
+import android.view.MotionEvent;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -18,6 +21,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.ClusterManager;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -31,7 +35,9 @@ public abstract class MapBaseActivity extends FragmentActivity {
     public GlobalVariables mGlobalVariables;
     public Marker mPointOfInterestMarker = null;
     public Places mPlaces;
+    public SlidingUpPanelLayout mSlidingUpPane;
     public TextView mPullupTitle;
+    public boolean isMovingAuto = false;
 
     private ClusterManager<ClusterStation> mClusterManager;
     private SharedPreferences mSharedPreferences;
@@ -42,6 +48,8 @@ public abstract class MapBaseActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+        mSlidingUpPane = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+        setupGui();
 
         mPullupTitle = (TextView) findViewById(R.id.pullup_title);
 
@@ -56,6 +64,17 @@ public abstract class MapBaseActivity extends FragmentActivity {
         setUpListeners();
 
         setUpClusterer();
+    }
+
+    protected void setupGui() {
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        int width = size.x;
+        int height = size.y;
+        float pullUpPaneHeight = getResources().getDimension(R.dimen.pullup_panel_height);
+        Double paralaxOffset = (height - pullUpPaneHeight) / 2.1;
+        mSlidingUpPane.setParalaxOffset(paralaxOffset.intValue());
     }
 
     @Override
@@ -116,9 +135,11 @@ public abstract class MapBaseActivity extends FragmentActivity {
                 LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                 if (mGlobalVariables.Map.location == null) {
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
+                    isMovingAuto = true;
                 }
                 if (mGlobalVariables.Map.moveCameraWithLocation) {
                     mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+                    isMovingAuto = true;
                 }
                 if (mCurrentLocationMarker == null) {
                     MarkerOptions markerOptions = new MarkerOptions()
@@ -160,17 +181,18 @@ public abstract class MapBaseActivity extends FragmentActivity {
             @Override
             public boolean onMarkerClick(Marker marker) {
                 mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
+                isMovingAuto = true;
                 markerClicked(marker);
                 return true;
             }
         };
         mMap.setOnMarkerClickListener(onMarkerClickListener);
-
     }
 
     public void centerMap(LatLng position) {
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(position);
         mMap.animateCamera(cameraUpdate);
+        isMovingAuto = true;
     }
 
     private void setUpMapIfNeeded() {
