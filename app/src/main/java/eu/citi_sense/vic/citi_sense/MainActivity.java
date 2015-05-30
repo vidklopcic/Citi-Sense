@@ -1,7 +1,6 @@
 package eu.citi_sense.vic.citi_sense;
 
 import android.location.Location;
-import android.util.Log;
 
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -11,7 +10,7 @@ public class MainActivity extends MapBaseActivity {
     @Override
     protected void cameraChanged(CameraPosition cameraPosition) {
         if (!isMovingAuto) {
-            mGlobalVariables.Map.moveCameraWithLocation = false;
+            mGVar.mMap.moveCameraWithLocation = false;
         }
         isMovingAuto = false;
     }
@@ -28,7 +27,7 @@ public class MainActivity extends MapBaseActivity {
 
     @Override
     protected void mapLongClicked(LatLng latLng) {
-        mGlobalVariables.Map.moveCameraWithLocation = false;
+        mGVar.mMap.moveCameraWithLocation = false;
         setPointOfInterest(latLng);
         setPullupTitle(latLng);
         centerMap(latLng);
@@ -38,7 +37,7 @@ public class MainActivity extends MapBaseActivity {
     protected void markerClicked(Marker marker) {
         if (marker.getSnippet().equals("your-location")) {
             removePointOfInterest();
-            mGlobalVariables.Map.moveCameraWithLocation = true;
+            mGVar.mMap.moveCameraWithLocation = true;
         }
         mPullupTitle.setText(marker.getTitle());
     }

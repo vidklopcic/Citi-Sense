@@ -1,5 +1,9 @@
 package eu.citi_sense.vic.citi_sense;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.location.Location;
@@ -9,9 +13,11 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.Display;
-import android.view.MotionEvent;
+import android.view.animation.OvershootInterpolator;
+import android.widget.ImageView;
 import android.widget.TextView;
-
+import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -32,12 +38,13 @@ import eu.citi_sense.vic.citi_sense.support_classes.map_activity.Places;
 
 public abstract class MapBaseActivity extends FragmentActivity {
     public GoogleMap mMap; // Might be null if Google Play services APK is not available.
-    public GlobalVariables mGlobalVariables;
+    public GlobalVariables mGVar;
     public Marker mPointOfInterestMarker = null;
     public Places mPlaces;
     public SlidingUpPanelLayout mSlidingUpPane;
     public TextView mPullupTitle;
     public boolean isMovingAuto = false;
+    public FloatingActionMenu mMenuPollutant;
 
     private ClusterManager<ClusterStation> mClusterManager;
     private SharedPreferences mSharedPreferences;
@@ -48,24 +55,32 @@ public abstract class MapBaseActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+        mGVar = (GlobalVariables) getApplicationContext();
+        mSharedPreferences = getSharedPreferences(
+                getString(R.string.shared_references_name), MODE_PRIVATE
+        );
+        mPreferencesEditor = mSharedPreferences.edit();
+        loadSettings();
+        mMenuPollutant = (FloatingActionMenu) findViewById(R.id.menu_pollutant);
         mSlidingUpPane = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
         setupGui();
 
         mPullupTitle = (TextView) findViewById(R.id.pullup_title);
 
         mPlaces = new Places(this);
-        mGlobalVariables = (GlobalVariables) getApplicationContext();
-        mSharedPreferences = getSharedPreferences(
-                getString(R.string.shared_references_name), MODE_PRIVATE
-        );
-        mPreferencesEditor = mSharedPreferences.edit();
-
         setUpMapIfNeeded();
         setUpListeners();
 
         setUpClusterer();
+
+        initFAB();
     }
 
+    protected void loadSettings() {
+        int currentPollutant = mSharedPreferences.getInt(
+                mGVar.Keys.last_pollutant, mGVar.Pollutant.CO);
+        mGVar.Pollutant.setPollutant(currentPollutant);
+    }
     protected void setupGui() {
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -86,7 +101,7 @@ public abstract class MapBaseActivity extends FragmentActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        mGlobalVariables.Map.cameraPosition = mMap.getCameraPosition();
+        mGVar.mMap.cameraPosition = mMap.getCameraPosition();
     }
 
     protected abstract void cameraChanged(CameraPosition cameraPosition);
@@ -133,11 +148,11 @@ public abstract class MapBaseActivity extends FragmentActivity {
         LocationListener locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
                 LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                if (mGlobalVariables.Map.location == null) {
+                if (mGVar.mMap.location == null) {
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
                     isMovingAuto = true;
                 }
-                if (mGlobalVariables.Map.moveCameraWithLocation) {
+                if (mGVar.mMap.moveCameraWithLocation) {
                     mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
                     isMovingAuto = true;
                 }
@@ -150,7 +165,7 @@ public abstract class MapBaseActivity extends FragmentActivity {
                     mCurrentLocationMarker = mMap.addMarker(markerOptions);
                 }
                 mCurrentLocationMarker.setPosition(latLng);
-                mGlobalVariables.Map.location = latLng;
+                mGVar.mMap.location = latLng;
                 locationChanged(location);
             }
 
@@ -213,8 +228,8 @@ public abstract class MapBaseActivity extends FragmentActivity {
         mMap.setBuildingsEnabled(true);
         mMap.setMyLocationEnabled(true);
 
-        if (mGlobalVariables.Map.cameraPosition != null) {
-            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(mGlobalVariables.Map.cameraPosition));
+        if (mGVar.mMap.cameraPosition != null) {
+            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(mGVar.mMap.cameraPosition));
         }
     }
 
@@ -225,8 +240,8 @@ public abstract class MapBaseActivity extends FragmentActivity {
 
     private void updateStations() {
         mClusterManager.clearItems();
-        if (mGlobalVariables.Map.stations != null) {
-           for(Map.Entry<String, double[]> station: mGlobalVariables.Map.stations.entrySet()) {
+        if (mGVar.mMap.stations != null) {
+           for(Map.Entry<String, double[]> station: mGVar.mMap.stations.entrySet()) {
                double[] latLng = station.getValue();
                mClusterManager.addItem(new ClusterStation(latLng[0], latLng[1], station.getKey()));
            }
@@ -258,5 +273,48 @@ public abstract class MapBaseActivity extends FragmentActivity {
             mPullupTitle.setText(address);
             mPointOfInterestMarker.setTitle(address);
         }
+    }
+
+//    floating action button
+    private void initFAB() {
+        ImageView menu_icon = mMenuPollutant.getMenuIconView();
+        menu_icon.setImageResource(mGVar.Pollutant.icon);
+        for(int i=1; i<=mGVar.Pollutant.nOfPollutants; i++) {
+            FloatingActionButton fab = new FloatingActionButton(this);
+            fab.setImageDrawable(getResources().getDrawable(mGVar.Pollutant.getPollutant(i).icon));
+            fab.setButtonSize(FloatingActionButton.SIZE_MINI);
+            mMenuPollutant.addMenuButton(fab);
+        }
+        createCustomAnimation();
+    }
+
+    private void createCustomAnimation() {
+        AnimatorSet set = new AnimatorSet();
+
+        ObjectAnimator scaleOutX = ObjectAnimator.ofFloat(mMenuPollutant.getMenuIconView(), "scaleX", 1.0f, 0.2f);
+        ObjectAnimator scaleOutY = ObjectAnimator.ofFloat(mMenuPollutant.getMenuIconView(), "scaleY", 1.0f, 0.2f);
+
+        ObjectAnimator scaleInX = ObjectAnimator.ofFloat(mMenuPollutant.getMenuIconView(), "scaleX", 0.2f, 1.0f);
+        ObjectAnimator scaleInY = ObjectAnimator.ofFloat(mMenuPollutant.getMenuIconView(), "scaleY", 0.2f, 1.0f);
+
+        scaleOutX.setDuration(50);
+        scaleOutY.setDuration(50);
+
+        scaleInX.setDuration(150);
+        scaleInY.setDuration(150);
+
+        scaleInX.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                mMenuPollutant.getMenuIconView().setImageResource(mMenuPollutant.isOpened()
+                        ? R.drawable.ic_close : mGVar.Pollutant.icon);
+            }
+        });
+
+        set.play(scaleOutX).with(scaleOutY);
+        set.play(scaleInX).with(scaleInY).after(scaleOutX);
+        set.setInterpolator(new OvershootInterpolator(2));
+
+        mMenuPollutant.setIconToggleAnimatorSet(set);
     }
 }
