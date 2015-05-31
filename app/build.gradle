@@ -21,14 +21,16 @@ android {
 
 repositories {
     maven { url "https://jitpack.io" }
+    maven { url "http://jzaccone.github.io/SlidingMenu-aar" }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:22.0.0'
+    compile 'com.android.support:appcompat-v7:22.1.1'
     compile 'com.sothree.slidinguppanel:library:3.0.0'
     compile 'com.google.maps.android:android-maps-utils:0.3+'
     compile 'com.google.android.gms:play-services:7.3.0'
     compile 'com.github.PhilJay:MPAndroidChart:v2.0.9'
     compile 'com.github.clans:fab:1.5.0'
+    compile 'com.jeremyfeinstein.slidingmenu:library:1.3@aar'
 }

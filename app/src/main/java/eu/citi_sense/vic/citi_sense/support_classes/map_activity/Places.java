@@ -19,10 +19,10 @@ public class Places {
     public String getAddress(Double lat, Double lon) {
         Geocoder geocoder = new Geocoder(mContext, Locale.ENGLISH);
         String address = "Somewhere";
-        List<Address> addresses = null;
+        List<Address> addresses;
         try {
             addresses = geocoder.getFromLocation(lat, lon, 1);
-            if (addresses != null) {
+            if (addresses.size() > 0) {
                 Address returnedAddress = addresses.get(0);
                 address = returnedAddress.getAddressLine(0);
             }

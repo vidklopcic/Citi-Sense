@@ -1,6 +1,7 @@
 package eu.citi_sense.vic.citi_sense;
 
 import android.animation.Animator;
+import android.animation.AnimatorInflater;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
@@ -12,7 +13,11 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.Display;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.OvershootInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -33,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import eu.citi_sense.vic.citi_sense.global.GlobalVariables;
+import eu.citi_sense.vic.citi_sense.global.Pollutants;
 import eu.citi_sense.vic.citi_sense.support_classes.map_activity.ClusterStation;
 import eu.citi_sense.vic.citi_sense.support_classes.map_activity.Places;
 
@@ -279,13 +285,43 @@ public abstract class MapBaseActivity extends FragmentActivity {
     private void initFAB() {
         ImageView menu_icon = mMenuPollutant.getMenuIconView();
         menu_icon.setImageResource(mGVar.Pollutant.icon);
+        mMenuPollutant.setMenuButtonColorNormalResId(mGVar.Pollutant.color);
+        mMenuPollutant.setMenuButtonColorPressedResId(mGVar.Pollutant.color_pressed);
         for(int i=1; i<=mGVar.Pollutant.nOfPollutants; i++) {
             FloatingActionButton fab = new FloatingActionButton(this);
-            fab.setImageDrawable(getResources().getDrawable(mGVar.Pollutant.getPollutant(i).icon));
+            Pollutants p = mGVar.Pollutant.getPollutant(i);
+            fab.setImageDrawable(getResources().getDrawable(p.icon));
             fab.setButtonSize(FloatingActionButton.SIZE_MINI);
+            fab.setLabelText(getString(p.description));
+            Animation animation = AnimationUtils.loadAnimation(
+                    getApplicationContext(), R.anim.abc_shrink_fade_out_from_bottom);
+            fab.setHideAnimation(animation);
+            fab.setTag(i);
+            fab.setBackgroundColor(p.color);
+            fab.setOnClickListener(new FloatingActionButton.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mGVar.Pollutant.setPollutant((int) view.getTag());
+                    mMenuPollutant.setMenuButtonColorNormalResId(mGVar.Pollutant.color);
+                    mMenuPollutant.setMenuButtonColorPressedResId(mGVar.Pollutant.color_pressed);
+                    mMenuPollutant.close(true);
+                }
+            });
+            fab.setColorNormalResId(p.color);
+            fab.setColorPressedResId(p.color_pressed);
             mMenuPollutant.addMenuButton(fab);
         }
         createCustomAnimation();
+    }
+
+    private void updateFAB() {
+        for (int i=0; i<mMenuPollutant.getChildCount(); i++) {
+            FloatingActionButton fab = (FloatingActionButton) mMenuPollutant.getChildAt(i);
+            int pollutant = (int) fab.getTag();
+            Pollutants p = mGVar.Pollutant.getPollutant(pollutant);
+            fab.setColorNormalResId(p.color);
+            fab.setColorPressedResId(p.color_pressed);
+        }
     }
 
     private void createCustomAnimation() {

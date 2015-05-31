@@ -5,6 +5,7 @@ import android.location.Location;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 public class MainActivity extends MapBaseActivity {
     @Override
@@ -18,6 +19,7 @@ public class MainActivity extends MapBaseActivity {
     @Override
     protected void mapClicked(LatLng latLng) {
         removePointOfInterest();
+        mSlidingUpPane.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
     }
 
     @Override
@@ -27,6 +29,9 @@ public class MainActivity extends MapBaseActivity {
 
     @Override
     protected void mapLongClicked(LatLng latLng) {
+        if (mSlidingUpPane.getPanelState() == SlidingUpPanelLayout.PanelState.HIDDEN) {
+            mSlidingUpPane.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        }
         mGVar.mMap.moveCameraWithLocation = false;
         setPointOfInterest(latLng);
         setPullupTitle(latLng);
@@ -40,5 +45,8 @@ public class MainActivity extends MapBaseActivity {
             mGVar.mMap.moveCameraWithLocation = true;
         }
         mPullupTitle.setText(marker.getTitle());
+        if (mSlidingUpPane.getPanelState() == SlidingUpPanelLayout.PanelState.HIDDEN) {
+            mSlidingUpPane.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        }
     }
 }

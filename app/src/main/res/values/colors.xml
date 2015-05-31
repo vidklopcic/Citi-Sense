@@ -8,10 +8,16 @@
     <color name="card_detailing">#eee</color>
     <color name="text_color">#ff5c5c5c</color>
     <color name="pullup_bg">#ffffff</color>
-    <color name="aqi_good">#88C53C</color>
-    <color name="aqi_moderate">#FFFF00</color>
-    <color name="aqi_unhealthy_for_sensitive">#F6931C</color>
-    <color name="aqi_unhealthy">#FF0002</color>
-    <color name="aqi_very_unhealthy">#932691</color>
+    <color name="aqi_good">#ff7ab439</color>
+    <color name="aqi_good_pressed">#ffbeff69</color>
+    <color name="aqi_moderate">#ffdcb704</color>
+    <color name="aqi_moderate_pressed">#ffffeb52</color>
+    <color name="aqi_unhealthy_for_sensitive">#ffda8219</color>
+    <color name="aqi_unhealthy_for_sensitive_pressed">#ffffce56</color>
+    <color name="aqi_unhealthy">#ffe80002</color>
+    <color name="aqi_unhealthy_pressed">#ffff6555</color>
+    <color name="aqi_very_unhealthy">#ff932691</color>
+    <color name="aqi_very_unhealthy_pressed">#ffffa5f0</color>
     <color name="aqi_hazardous">#A00208</color>
+    <color name="aqi_hazardous_pressed">#ffa04f4e</color>
 </resources>

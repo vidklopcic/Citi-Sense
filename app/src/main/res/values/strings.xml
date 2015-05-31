@@ -5,4 +5,13 @@
     <string name="shared_references_name">CitiSenseGeneralPreferences</string>
     <string name="last_location_key">last_location</string>
     <string name="pullup_title_your_location">Your Location</string>
+    <string name="CO_description">Carbon monoxide</string>
+    <string name="CO2_description">Carbon dioxide</string>
+    <string name="O3_description">Ozone</string>
+    <string name="PM10_description">Particulate matter 10μm</string>
+    <string name="PM2_5_description">Particulate matter 2.5μm</string>
+    <string name="SO2_description">Sulphur dioxide</string>
+    <string name="NO_description">Nitrogen oxide</string>
+    <string name="H2O_description">Humidity</string>
+    <string name="your_location">Your location</string>
 </resources>
