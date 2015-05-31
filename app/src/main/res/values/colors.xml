@@ -21,8 +21,8 @@
     <color name="aqi_hazardous">#A00208</color>
     <color name="aqi_hazardous_pressed">#ffa04f4e</color>
     <color name="sliding_menu_background">#222222</color>
-    <color name="flat_title_bg">#ffe91900</color>
-    <color name="flat_bg">#3a0093ff</color>
+    <color name="flat_title_bg">#ffe96d3a</color>
+    <color name="flat_bg">#3a919191</color>
     <color name="temp_sliding_menu_bg">#E65D5D</color>
-    <color name="humidity_sliding_menu_bg">#2FA1D7</color>
+    <color name="humidity_sliding_menu_bg">#ff2b7cc0</color>
 </resources>

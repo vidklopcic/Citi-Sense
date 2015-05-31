@@ -1,4 +1,5 @@
 package eu.citi_sense.vic.citi_sense;
+import com.github.mikephil.charting.charts.Chart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
@@ -11,6 +12,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Point;
 import android.location.Location;
 import android.location.LocationListener;
@@ -427,6 +429,7 @@ private LineData getData(int count, float range) {
         // add data
         chart.setData(data);
         chart.setDescription("");
+
         // get the legend (only possible after setting data)
         Legend l = chart.getLegend();
         l.setEnabled(false);
@@ -435,9 +438,9 @@ private LineData getData(int count, float range) {
         chart.getAxisRight().setEnabled(false);
         XAxis xl = chart.getXAxis();
         xl.setEnabled(true);
-        xl.setPosition(XAxis.XAxisPosition.BOTTOM_INSIDE);
+        xl.setPosition(XAxis.XAxisPosition.BOTTOM);
         xl.setTextColor(Color.WHITE);
-        xl.setDrawAxisLine(false);
+        xl.setAxisLineColor(Color.WHITE);
         xl.setDrawGridLines(false);
 
         chart.getXAxis().setEnabled(true);

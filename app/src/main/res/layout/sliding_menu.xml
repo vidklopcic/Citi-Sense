@@ -27,6 +27,7 @@
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/sliding_menu_chart"
                 android:layout_weight="1"
+                android:layout_marginBottom="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
         </LinearLayout>
@@ -35,7 +36,7 @@
             android:layout_height="50dp"
             android:layout_marginTop="-50dp"
             android:orientation="horizontal">
-            <RelativeLayout
+            <LinearLayout
                 android:orientation="vertical"
                 android:id="@+id/temp_sliding_menu"
                 android:layout_width="0dp"
@@ -43,12 +44,12 @@
                 android:layout_weight="2"
                 android:background="@color/temp_sliding_menu_bg">
                 <TextView
-                    android:layout_marginTop="-5px"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/temperature"
                     android:textColor="#ffffff"
                     android:gravity="center"
+                    android:layout_marginTop="5px"
                     android:textSize="10sp"/>
                 <TextView
                     android:layout_width="match_parent"
@@ -56,9 +57,10 @@
                     android:textColor="#ffffff"
                     android:textSize="18sp"
                     android:gravity="center"
+                    android:layout_marginTop="-5px"
                     android:text="20°ᶜ"/>
-            </RelativeLayout>
-            <RelativeLayout
+            </LinearLayout>
+            <LinearLayout
                 android:id="@+id/aqi_sliding_menu"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
@@ -66,7 +68,7 @@
                 android:background="@color/aqi_good"
                 android:orientation="vertical">
                 <TextView
-                    android:layout_marginTop="-5px"
+                    android:layout_marginTop="5px"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/aqi"
@@ -79,9 +81,11 @@
                     android:textColor="#ffffff"
                     android:textSize="18sp"
                     android:gravity="center"
+                    android:textStyle="bold"
+                    android:layout_marginTop="-5px"
                     android:text="GOOD"/>
-            </RelativeLayout>
-            <RelativeLayout
+            </LinearLayout>
+            <LinearLayout
                 android:id="@+id/humidity_sliding_menu"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
@@ -89,7 +93,7 @@
                 android:orientation="vertical"
                 android:background="@color/humidity_sliding_menu_bg">
                 <TextView
-                    android:layout_marginTop="-5px"
+                    android:layout_marginTop="5px"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/humidity"
@@ -101,9 +105,10 @@
                     android:layout_height="fill_parent"
                     android:textColor="#ffffff"
                     android:textSize="18sp"
+                    android:layout_marginTop="-5px"
                     android:gravity="center"
                     android:text="68%"/>
-            </RelativeLayout>
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
     <ScrollView
