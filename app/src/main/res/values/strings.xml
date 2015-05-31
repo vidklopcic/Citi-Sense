@@ -14,4 +14,7 @@
     <string name="NO_description">Nitrogen oxide</string>
     <string name="H2O_description">Humidity</string>
     <string name="your_location">Your location</string>
+    <string name="temperature">temperature</string>
+    <string name="humidity">humidity</string>
+    <string name="aqi">AQI</string>
 </resources>

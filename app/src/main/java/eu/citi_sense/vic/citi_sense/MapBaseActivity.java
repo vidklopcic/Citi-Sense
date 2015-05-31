@@ -1,11 +1,16 @@
 package eu.citi_sense.vic.citi_sense;
-
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.Entry;
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.location.Location;
 import android.location.LocationListener;
@@ -23,6 +28,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -41,6 +48,7 @@ import eu.citi_sense.vic.citi_sense.global.GlobalVariables;
 import eu.citi_sense.vic.citi_sense.global.Pollutants;
 import eu.citi_sense.vic.citi_sense.support_classes.map_activity.ClusterStation;
 import eu.citi_sense.vic.citi_sense.support_classes.map_activity.Places;
+import eu.citi_sense.vic.citi_sense.support_classes.sliding_menu.SlidingMenuHandler;
 
 public abstract class MapBaseActivity extends FragmentActivity {
     public GoogleMap mMap; // Might be null if Google Play services APK is not available.
@@ -51,6 +59,7 @@ public abstract class MapBaseActivity extends FragmentActivity {
     public TextView mPullupTitle;
     public boolean isMovingAuto = false;
     public FloatingActionMenu mMenuPollutant;
+    public SlidingMenuHandler mSlidingMenu;
 
     private ClusterManager<ClusterStation> mClusterManager;
     private SharedPreferences mSharedPreferences;
@@ -80,6 +89,8 @@ public abstract class MapBaseActivity extends FragmentActivity {
         setUpClusterer();
 
         initFAB();
+
+        setupChart();
     }
 
     protected void loadSettings() {
@@ -96,6 +107,7 @@ public abstract class MapBaseActivity extends FragmentActivity {
         float pullUpPaneHeight = getResources().getDimension(R.dimen.pullup_panel_height);
         Double paralaxOffset = (height - pullUpPaneHeight) / 2.1;
         mSlidingUpPane.setParalaxOffset(paralaxOffset.intValue());
+        mSlidingMenu = new SlidingMenuHandler(this);
     }
 
     @Override
@@ -352,5 +364,85 @@ public abstract class MapBaseActivity extends FragmentActivity {
         set.setInterpolator(new OvershootInterpolator(2));
 
         mMenuPollutant.setIconToggleAnimatorSet(set);
+    }
+
+//    Sliding menu
+private LineData getData(int count, float range) {
+
+    ArrayList<String> xVals = new ArrayList<String>();
+    for (int i = 0; i < count; i++) {
+        xVals.add(Integer.toString(i % 24));
+    }
+
+    ArrayList<Entry> yVals = new ArrayList<Entry>();
+
+    for (int i = 0; i < count; i++) {
+        float val = (float) (Math.random() * range) + 3;
+        yVals.add(new Entry(val, i));
+    }
+
+    // create a dataset and give it a type
+    LineDataSet set1 = new LineDataSet(yVals, "DataSet 1");
+    // set1.setFillAlpha(110);
+    // set1.setFillColor(Color.RED);
+
+    set1.setLineWidth(1.75f);
+    set1.setCircleSize(0);
+    set1.setColor(Color.WHITE);
+    set1.setCircleColor(Color.WHITE);
+    set1.setHighLightColor(Color.WHITE);
+    set1.setDrawValues(false);
+
+    ArrayList<LineDataSet> dataSets = new ArrayList<LineDataSet>();
+    dataSets.add(set1); // add the datasets
+
+    // create a data object with the datasets
+    LineData data = new LineData(xVals, dataSets);
+
+    return data;
+}
+    private void setupChart() {
+        LineData data = getData(24, 5);
+        int color = Color.argb(0, 0, 0, 0);
+        LineChart chart = (LineChart) findViewById(R.id.sliding_menu_chart);
+
+
+        // enable / disable grid background
+        chart.setDrawGridBackground(false);
+
+        // enable touch gestures
+        chart.setTouchEnabled(true);
+
+        // enable scaling and dragging
+        chart.setDragEnabled(true);
+        chart.setScaleEnabled(true);
+
+        // if disabled, scaling can be done on x- and y-axis separately
+        chart.setPinchZoom(false);
+
+        chart.setBackgroundColor(color);
+
+        // set custom chart offsets (automatic offset calculation is hereby disabled)
+
+        // add data
+        chart.setData(data);
+        chart.setDescription("");
+        // get the legend (only possible after setting data)
+        Legend l = chart.getLegend();
+        l.setEnabled(false);
+
+        chart.getAxisLeft().setEnabled(false);
+        chart.getAxisRight().setEnabled(false);
+        XAxis xl = chart.getXAxis();
+        xl.setEnabled(true);
+        xl.setPosition(XAxis.XAxisPosition.BOTTOM_INSIDE);
+        xl.setTextColor(Color.WHITE);
+        xl.setDrawAxisLine(false);
+        xl.setDrawGridLines(false);
+
+        chart.getXAxis().setEnabled(true);
+
+        // animate calls invalidate()...
+        chart.invalidate();
     }
 }

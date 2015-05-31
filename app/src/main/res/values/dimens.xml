@@ -5,4 +5,5 @@
     <dimen name="aqi_scale_height">10dp</dimen>
     <dimen name="current_location_marker_size">18dp</dimen>
     <dimen name="title_size">20sp</dimen>
+    <dimen name="shadow_width">10dp</dimen>
 </resources>
