@@ -434,7 +434,6 @@ private LineData getData(int count, float range) {
         Legend l = chart.getLegend();
         l.setEnabled(false);
 
-        chart.getAxisLeft().setEnabled(false);
         chart.getAxisRight().setEnabled(false);
         XAxis xl = chart.getXAxis();
         xl.setEnabled(true);
@@ -442,6 +441,13 @@ private LineData getData(int count, float range) {
         xl.setTextColor(Color.WHITE);
         xl.setAxisLineColor(Color.WHITE);
         xl.setDrawGridLines(false);
+        YAxis yl = chart.getAxisLeft();
+        yl.setEnabled(true);
+        yl.setTextColor(Color.WHITE);
+        yl.setDrawAxisLine(false);
+        yl.setDrawGridLines(true);
+        yl.setEnabled(true);
+
 
         chart.getXAxis().setEnabled(true);
 
