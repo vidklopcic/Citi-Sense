@@ -46,6 +46,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import java.util.ArrayList;
 import java.util.Map;
 
+import eu.citi_sense.vic.citi_sense.global.Databases.CachedData;
 import eu.citi_sense.vic.citi_sense.global.GlobalVariables;
 import eu.citi_sense.vic.citi_sense.global.Pollutants;
 import eu.citi_sense.vic.citi_sense.support_classes.map_activity.ClusterStation;
@@ -65,18 +66,17 @@ public abstract class MapBaseActivity extends FragmentActivity {
 
     private ClusterManager<ClusterStation> mClusterManager;
     private SharedPreferences mSharedPreferences;
-    private SharedPreferences.Editor mPreferencesEditor;
     private Marker mCurrentLocationMarker = null;
-
+    private CachedData cd;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
         mGVar = (GlobalVariables) getApplicationContext();
+        cd = new CachedData();
         mSharedPreferences = getSharedPreferences(
                 getString(R.string.shared_references_name), MODE_PRIVATE
         );
-        mPreferencesEditor = mSharedPreferences.edit();
         loadSettings();
         mMenuPollutant = (FloatingActionMenu) findViewById(R.id.menu_pollutant);
         mSlidingUpPane = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
@@ -297,10 +297,14 @@ public abstract class MapBaseActivity extends FragmentActivity {
 
 //    floating action button
     private void initFAB() {
+//        restore last used pollutant
+        Integer pollutant = Integer.decode(cd.get(getString(R.string.last_pollutant_key), "1"));
+        mGVar.Pollutant.setPollutant(pollutant);
         ImageView menu_icon = mMenuPollutant.getMenuIconView();
         menu_icon.setImageResource(mGVar.Pollutant.icon);
         mMenuPollutant.setMenuButtonColorNormalResId(mGVar.Pollutant.color);
         mMenuPollutant.setMenuButtonColorPressedResId(mGVar.Pollutant.color_pressed);
+
         for(int i=1; i<=mGVar.Pollutant.nOfPollutants; i++) {
             FloatingActionButton fab = new FloatingActionButton(this);
             Pollutants p = mGVar.Pollutant.getPollutant(i);
@@ -315,7 +319,9 @@ public abstract class MapBaseActivity extends FragmentActivity {
             fab.setOnClickListener(new FloatingActionButton.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mGVar.Pollutant.setPollutant((int) view.getTag());
+                    Integer pollutant = (int) view.getTag();
+                    cd.put(getString(R.string.last_pollutant_key), pollutant.toString());
+                    mGVar.Pollutant.setPollutant(pollutant);
                     mMenuPollutant.setMenuButtonColorNormalResId(mGVar.Pollutant.color);
                     mMenuPollutant.setMenuButtonColorPressedResId(mGVar.Pollutant.color_pressed);
                     mMenuPollutant.close(true);

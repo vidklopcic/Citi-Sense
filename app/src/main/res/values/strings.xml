@@ -17,4 +17,5 @@
     <string name="temperature">temperature</string>
     <string name="humidity">humidity</string>
     <string name="aqi">AQI</string>
+    <string name="last_pollutant_key">last-FAB-pollutant</string>
 </resources>
