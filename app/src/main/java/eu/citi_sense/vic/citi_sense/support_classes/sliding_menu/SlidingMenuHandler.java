@@ -10,6 +10,7 @@ import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import eu.citi_sense.vic.citi_sense.R;
 
 public class SlidingMenuHandler {
+    public SlidingMenu menu;
     public SlidingMenuHandler(Activity context) {
         Display display = context.getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -24,5 +25,6 @@ public class SlidingMenuHandler {
         menu.attachToActivity(context, SlidingMenu.SLIDING_CONTENT);
         menu.setBehindOffset((int) (size.x*0.1));
         menu.setMenu(R.layout.sliding_menu);
+        this.menu = menu;
     }
 }

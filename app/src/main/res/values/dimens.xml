@@ -6,4 +6,7 @@
     <dimen name="current_location_marker_size">18dp</dimen>
     <dimen name="title_size">20sp</dimen>
     <dimen name="shadow_width">10dp</dimen>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
 </resources>

@@ -14,17 +14,24 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
-        android:name="eu.citi_sense.vic.citi_sense.global.GlobalVariables"
+        android:name=".global.GlobalVariables"
         android:allowBackup="true"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
 
-        <!-- SugarApp database config-->
-        <meta-data android:name="DATABASE" android:value="databse.db" />
-        <meta-data android:name="VERSION" android:value="0" />
-        <meta-data android:name="QUERY_LOG" android:value="true" />
-        <meta-data android:name="DOMAIN_PACKAGE_NAME" android:value="eu.citi_sense.vic.citi_sense" />
-
+        <!-- SugarApp database config -->
+        <meta-data
+            android:name="DATABASE"
+            android:value="databse.db" />
+        <meta-data
+            android:name="VERSION"
+            android:value="0" />
+        <meta-data
+            android:name="QUERY_LOG"
+            android:value="true" />
+        <meta-data
+            android:name="DOMAIN_PACKAGE_NAME"
+            android:value="eu.citi_sense.vic.citi_sense" />
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -34,14 +41,22 @@
 
         <activity
             android:name=".MainActivity"
-            android:screenOrientation="portrait"
-            android:configChanges="keyboardHidden|orientation|screenSize">
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:screenOrientation="portrait" >
             android:label="@string/title_activity_map" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".StationsActivity"
+            android:label="@string/title_activity_stations" >
+        </activity>
+        <activity
+            android:name=".AnalysisActivity"
+            android:label="@string/title_activity_analysis" >
         </activity>
     </application>
 

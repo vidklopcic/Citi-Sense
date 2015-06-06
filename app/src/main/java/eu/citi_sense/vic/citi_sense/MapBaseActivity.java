@@ -46,6 +46,7 @@ import eu.citi_sense.vic.citi_sense.global.Pollutants;
 import eu.citi_sense.vic.citi_sense.support_classes.Charts;
 import eu.citi_sense.vic.citi_sense.support_classes.map_activity.ClusterStation;
 import eu.citi_sense.vic.citi_sense.support_classes.map_activity.Places;
+import eu.citi_sense.vic.citi_sense.support_classes.sliding_menu.SlidingMenuListeners;
 import eu.citi_sense.vic.citi_sense.support_classes.sliding_menu.SlidingMenuHandler;
 
 public abstract class MapBaseActivity extends FragmentActivity {
@@ -94,6 +95,12 @@ public abstract class MapBaseActivity extends FragmentActivity {
         LineData data = mGVar.data.getAQIData(24, 5);
         LineChart chart = (LineChart) findViewById(R.id.sliding_menu_chart);
         mCharts.setupAQISlidingChart(data, chart);
+
+        LinearLayout mapButton = (LinearLayout) findViewById(R.id.sliding_menu_map);
+        LinearLayout analysisButton = (LinearLayout) findViewById(R.id.sliding_menu_analysis);
+        LinearLayout stationsButton = (LinearLayout) findViewById(R.id.sliding_menu_stations);
+        new SlidingMenuListeners(mapButton, analysisButton, stationsButton,
+                SlidingMenuListeners.MAP_ACTIVITY, mSlidingMenu, this);
     }
 
     protected void loadSettings() {
