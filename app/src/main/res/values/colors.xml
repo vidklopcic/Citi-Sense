@@ -25,4 +25,5 @@
     <color name="flat_bg">#3a919191</color>
     <color name="temp_sliding_menu_bg">#E65D5D</color>
     <color name="humidity_sliding_menu_bg">#ff2b7cc0</color>
+    <color name="sliding_menu_pressed">#3a919191</color>
 </resources>

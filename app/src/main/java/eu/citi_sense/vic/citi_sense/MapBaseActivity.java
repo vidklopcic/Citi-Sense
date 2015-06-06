@@ -1,18 +1,9 @@
 package eu.citi_sense.vic.citi_sense;
-import com.github.mikephil.charting.charts.Chart;
-import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
-import com.github.mikephil.charting.data.Entry;
 import android.animation.Animator;
-import android.animation.AnimatorInflater;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Point;
 import android.location.Location;
 import android.location.LocationListener;
@@ -22,16 +13,19 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Display;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.OvershootInterpolator;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
+import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.data.LineDataSet;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -46,9 +40,9 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import java.util.ArrayList;
 import java.util.Map;
 
-import eu.citi_sense.vic.citi_sense.global.Databases.CachedData;
 import eu.citi_sense.vic.citi_sense.global.GlobalVariables;
 import eu.citi_sense.vic.citi_sense.global.Pollutants;
+import eu.citi_sense.vic.citi_sense.support_classes.Charts;
 import eu.citi_sense.vic.citi_sense.support_classes.map_activity.ClusterStation;
 import eu.citi_sense.vic.citi_sense.support_classes.map_activity.Places;
 import eu.citi_sense.vic.citi_sense.support_classes.sliding_menu.SlidingMenuHandler;
@@ -67,17 +61,19 @@ public abstract class MapBaseActivity extends FragmentActivity {
     private ClusterManager<ClusterStation> mClusterManager;
     private SharedPreferences mSharedPreferences;
     private Marker mCurrentLocationMarker = null;
-    private CachedData cd;
+    private Charts mCharts = new Charts();
+    private RelativeLayout mSlidinPaneLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
         mGVar = (GlobalVariables) getApplicationContext();
-        cd = new CachedData();
         mSharedPreferences = getSharedPreferences(
                 getString(R.string.shared_references_name), MODE_PRIVATE
         );
         loadSettings();
+        mSlidinPaneLayout = (RelativeLayout) findViewById(R.id.sliding_pane_layout);
         mMenuPollutant = (FloatingActionMenu) findViewById(R.id.menu_pollutant);
         mSlidingUpPane = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
         setupGui();
@@ -92,7 +88,9 @@ public abstract class MapBaseActivity extends FragmentActivity {
 
         initFAB();
 
-        setupChart();
+        LineData data = mGVar.data.getAQIData(24, 5);
+        LineChart chart = (LineChart) findViewById(R.id.sliding_menu_chart);
+        mCharts.setupAQISlidingChart(data, chart);
     }
 
     protected void loadSettings() {
@@ -107,8 +105,27 @@ public abstract class MapBaseActivity extends FragmentActivity {
         int width = size.x;
         int height = size.y;
         float pullUpPaneHeight = getResources().getDimension(R.dimen.pullup_panel_height);
-        Double paralaxOffset = (height - pullUpPaneHeight) / 2.1;
+        Double paralaxOffset = (height-height*0.65) / 2 + pullUpPaneHeight/2;
         mSlidingUpPane.setParalaxOffset(paralaxOffset.intValue());
+        mSlidingUpPane.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
+            @Override
+            public void onPanelSlide(View view, float v) {
+                mMenuPollutant.close(true);
+            }
+
+            @Override
+            public void onPanelCollapsed(View view) {}
+
+            @Override
+            public void onPanelExpanded(View view) {}
+
+            @Override
+            public void onPanelAnchored(View view) {}
+
+            @Override
+            public void onPanelHidden(View view) {}
+        });
+        mSlidinPaneLayout.getLayoutParams().height = (int) (height*0.65);
         mSlidingMenu = new SlidingMenuHandler(this);
     }
 
@@ -298,7 +315,7 @@ public abstract class MapBaseActivity extends FragmentActivity {
 //    floating action button
     private void initFAB() {
 //        restore last used pollutant
-        Integer pollutant = Integer.decode(cd.get(getString(R.string.last_pollutant_key), "1"));
+        Integer pollutant = mGVar.data.getLastFABPollutant();
         mGVar.Pollutant.setPollutant(pollutant);
         ImageView menu_icon = mMenuPollutant.getMenuIconView();
         menu_icon.setImageResource(mGVar.Pollutant.icon);
@@ -316,32 +333,22 @@ public abstract class MapBaseActivity extends FragmentActivity {
             fab.setHideAnimation(animation);
             fab.setTag(i);
             fab.setBackgroundColor(p.color);
+            fab.setColorNormalResId(p.color);
             fab.setOnClickListener(new FloatingActionButton.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Integer pollutant = (int) view.getTag();
-                    cd.put(getString(R.string.last_pollutant_key), pollutant.toString());
+                    mGVar.data.setLastFABPollutant(pollutant);
                     mGVar.Pollutant.setPollutant(pollutant);
                     mMenuPollutant.setMenuButtonColorNormalResId(mGVar.Pollutant.color);
                     mMenuPollutant.setMenuButtonColorPressedResId(mGVar.Pollutant.color_pressed);
                     mMenuPollutant.close(true);
                 }
             });
-            fab.setColorNormalResId(p.color);
             fab.setColorPressedResId(p.color_pressed);
             mMenuPollutant.addMenuButton(fab);
         }
         createCustomAnimation();
-    }
-
-    private void updateFAB() {
-        for (int i=0; i<mMenuPollutant.getChildCount(); i++) {
-            FloatingActionButton fab = (FloatingActionButton) mMenuPollutant.getChildAt(i);
-            int pollutant = (int) fab.getTag();
-            Pollutants p = mGVar.Pollutant.getPollutant(pollutant);
-            fab.setColorNormalResId(p.color);
-            fab.setColorPressedResId(p.color_pressed);
-        }
     }
 
     private void createCustomAnimation() {
@@ -372,92 +379,5 @@ public abstract class MapBaseActivity extends FragmentActivity {
         set.setInterpolator(new OvershootInterpolator(2));
 
         mMenuPollutant.setIconToggleAnimatorSet(set);
-    }
-
-//    Sliding menu
-private LineData getData(int count, float range) {
-
-    ArrayList<String> xVals = new ArrayList<String>();
-    for (int i = 0; i < count; i++) {
-        xVals.add(Integer.toString(i % 24));
-    }
-
-    ArrayList<Entry> yVals = new ArrayList<Entry>();
-
-    for (int i = 0; i < count; i++) {
-        float val = (float) (Math.random() * range) + 3;
-        yVals.add(new Entry(val, i));
-    }
-
-    // create a dataset and give it a type
-    LineDataSet set1 = new LineDataSet(yVals, "DataSet 1");
-    // set1.setFillAlpha(110);
-    // set1.setFillColor(Color.RED);
-
-    set1.setLineWidth(1.75f);
-    set1.setCircleSize(0);
-    set1.setColor(Color.WHITE);
-    set1.setCircleColor(Color.WHITE);
-    set1.setHighLightColor(Color.WHITE);
-    set1.setDrawValues(false);
-
-    ArrayList<LineDataSet> dataSets = new ArrayList<LineDataSet>();
-    dataSets.add(set1); // add the datasets
-
-    // create a data object with the datasets
-    LineData data = new LineData(xVals, dataSets);
-
-    return data;
-}
-    private void setupChart() {
-        LineData data = getData(24, 5);
-        int color = Color.argb(0, 0, 0, 0);
-        LineChart chart = (LineChart) findViewById(R.id.sliding_menu_chart);
-
-
-        // enable / disable grid background
-        chart.setDrawGridBackground(false);
-
-        // enable touch gestures
-        chart.setTouchEnabled(true);
-
-        // enable scaling and dragging
-        chart.setDragEnabled(true);
-        chart.setScaleEnabled(true);
-
-        // if disabled, scaling can be done on x- and y-axis separately
-        chart.setPinchZoom(false);
-
-        chart.setBackgroundColor(color);
-
-        // set custom chart offsets (automatic offset calculation is hereby disabled)
-
-        // add data
-        chart.setData(data);
-        chart.setDescription("");
-
-        // get the legend (only possible after setting data)
-        Legend l = chart.getLegend();
-        l.setEnabled(false);
-
-        chart.getAxisRight().setEnabled(false);
-        XAxis xl = chart.getXAxis();
-        xl.setEnabled(true);
-        xl.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xl.setTextColor(Color.WHITE);
-        xl.setAxisLineColor(Color.WHITE);
-        xl.setDrawGridLines(false);
-        YAxis yl = chart.getAxisLeft();
-        yl.setEnabled(true);
-        yl.setTextColor(Color.WHITE);
-        yl.setDrawAxisLine(false);
-        yl.setDrawGridLines(true);
-        yl.setEnabled(true);
-
-
-        chart.getXAxis().setEnabled(true);
-
-        // animate calls invalidate()...
-        chart.invalidate();
     }
 }

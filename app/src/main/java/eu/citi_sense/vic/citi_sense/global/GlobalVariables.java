@@ -8,5 +8,6 @@ public class GlobalVariables extends SugarApp {
     public MapVariables mMap = new MapVariables();
     public Pollutants Pollutant = new Pollutants();
     public SharedPreferencesKeys Keys = new SharedPreferencesKeys();
+    public Data data = new Data();
 }
 

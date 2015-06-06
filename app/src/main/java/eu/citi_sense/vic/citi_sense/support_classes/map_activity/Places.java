@@ -58,7 +58,7 @@ public class Places {
         dist = rad2deg(dist);
         dist = dist * 60;
         dist = dist * 1852;
-        return (dist);
+        return dist;
     }
 
     public double deg2rad(double deg) {

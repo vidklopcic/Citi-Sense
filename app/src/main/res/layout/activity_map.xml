@@ -10,7 +10,7 @@
     sothree:umanoShadowHeight="5dp"
     sothree:umanoFadeColor="@color/transparent"
     sothree:umanoOverlay="false"
-    sothree:umanoAnchorPoint="0.65">
+    sothree:umanoInitialState="hidden">
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -58,6 +58,7 @@
     </RelativeLayout>
 
     <RelativeLayout
+        android:id="@+id/sliding_pane_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/pullup_bg"

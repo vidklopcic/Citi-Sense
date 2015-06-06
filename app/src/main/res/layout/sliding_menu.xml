@@ -115,7 +115,84 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"
+        android:layout_marginTop="20dp"
         android:fillViewport="true">
-
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <LinearLayout
+                android:id="@+id/sliding_menu_map"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:paddingLeft="20dp"
+                android:clickable="true"
+                android:background="@drawable/sliding_menu_selector">
+                <ImageView
+                    android:layout_gravity="center"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_margin="5dp"
+                    android:src="@drawable/maps"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:layout_margin="5dp"
+                    android:layout_gravity="center"
+                    android:text="@string/maps"
+                    android:textColor="#ffffff"
+                    android:textSize="20sp"
+                    />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/sliding_menu_analysis"
+                android:clickable="true"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:paddingLeft="20dp"
+                android:background="@drawable/sliding_menu_selector">
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_margin="5dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/grafi"/>
+                <TextView
+                    android:layout_gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:layout_margin="5dp"
+                    android:text="@string/analysis"
+                    android:textColor="#ffffff"
+                    android:textSize="20sp"
+                    />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/sliding_menu_stations"
+                android:clickable="true"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:paddingLeft="20dp"
+                android:background="@drawable/sliding_menu_selector">
+                <ImageView
+                    android:layout_gravity="center"
+                    android:layout_width="30dp"
+                    android:layout_margin="5dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/merilne_tocke"/>
+                <TextView
+                    android:layout_gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:layout_margin="5dp"
+                    android:text="@string/stations"
+                    android:textColor="#ffffff"
+                    android:textSize="20sp"
+                    />
+            </LinearLayout>
+        </LinearLayout>
     </ScrollView>
 </LinearLayout>
