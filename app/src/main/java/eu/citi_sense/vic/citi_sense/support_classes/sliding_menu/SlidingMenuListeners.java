@@ -9,9 +9,6 @@ import eu.citi_sense.vic.citi_sense.AnalysisActivity;
 import eu.citi_sense.vic.citi_sense.MapBaseActivity;
 import eu.citi_sense.vic.citi_sense.StationsActivity;
 
-/**
- * Created by prog on 6.6.2015.
- */
 public class SlidingMenuListeners {
     public static final Integer MAP_ACTIVITY = 0;
     public static final Integer ANALYSIS_ACTIVITY = 1;
@@ -40,8 +37,6 @@ public class SlidingMenuListeners {
             @Override
             public void onClick(View view) {
                 if (currentActivity != MAP_ACTIVITY) {
-                    Intent mapActivityIntent = new Intent(context, MapBaseActivity.class);
-                    context.startActivity(mapActivityIntent);
                     context.finish();
                 } else {
                     slidingMenu.menu.toggle();
@@ -54,6 +49,7 @@ public class SlidingMenuListeners {
                 if (currentActivity != ANALYSIS_ACTIVITY) {
                     Intent mapActivityIntent = new Intent(context, AnalysisActivity.class);
                     context.startActivity(mapActivityIntent);
+                    slidingMenu.menu.toggle();
                     if (currentActivity != MAP_ACTIVITY) {
                         context.finish();
                     }
@@ -68,6 +64,7 @@ public class SlidingMenuListeners {
                 if (currentActivity != STATIONS_ACTIVITY) {
                     Intent mapActivityIntent = new Intent(context, StationsActivity.class);
                     context.startActivity(mapActivityIntent);
+                    slidingMenu.menu.toggle();
                     if (currentActivity != MAP_ACTIVITY) {
                         context.finish();
                     }
