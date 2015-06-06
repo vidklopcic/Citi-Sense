@@ -19,7 +19,11 @@ public class MainActivity extends MapBaseActivity {
     @Override
     protected void mapClicked(LatLng latLng) {
         removePointOfInterest();
-        mSlidingUpPane.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+        if (mSlidingUpPane.getPanelState() != SlidingUpPanelLayout.PanelState.HIDDEN) {
+            mSlidingUpPane.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+            animateFABDown();
+            alreadyAnimatedFAB = true;
+        }
     }
 
     @Override
@@ -31,6 +35,8 @@ public class MainActivity extends MapBaseActivity {
     protected void mapLongClicked(LatLng latLng) {
         if (mSlidingUpPane.getPanelState() == SlidingUpPanelLayout.PanelState.HIDDEN) {
             mSlidingUpPane.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+            animateFABUp();
+            alreadyAnimatedFAB = true;
         }
         mGVar.mMap.moveCameraWithLocation = false;
         setPointOfInterest(latLng);
@@ -47,6 +53,8 @@ public class MainActivity extends MapBaseActivity {
         mPullupTitle.setText(marker.getTitle());
         if (mSlidingUpPane.getPanelState() == SlidingUpPanelLayout.PanelState.HIDDEN) {
             mSlidingUpPane.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+            animateFABUp();
+            alreadyAnimatedFAB = true;
         }
     }
 }

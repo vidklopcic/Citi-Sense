@@ -11,14 +11,15 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
+import android.util.TypedValue;
 import android.view.Display;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.OvershootInterpolator;
+import android.view.animation.Transformation;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -55,9 +56,11 @@ public abstract class MapBaseActivity extends FragmentActivity {
     public SlidingUpPanelLayout mSlidingUpPane;
     public TextView mPullupTitle;
     public boolean isMovingAuto = false;
-    public FloatingActionMenu mMenuPollutant;
+    public FloatingActionMenu mFABPollutants;
     public SlidingMenuHandler mSlidingMenu;
-
+    public boolean alreadyAnimatedFAB = false;
+    private Animation FABDownAnimation;
+    private Animation FABUpAnimation;
     private ClusterManager<ClusterStation> mClusterManager;
     private SharedPreferences mSharedPreferences;
     private Marker mCurrentLocationMarker = null;
@@ -74,7 +77,7 @@ public abstract class MapBaseActivity extends FragmentActivity {
         );
         loadSettings();
         mSlidinPaneLayout = (RelativeLayout) findViewById(R.id.sliding_pane_layout);
-        mMenuPollutant = (FloatingActionMenu) findViewById(R.id.menu_pollutant);
+        mFABPollutants = (FloatingActionMenu) findViewById(R.id.menu_pollutant);
         mSlidingUpPane = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
         setupGui();
 
@@ -110,23 +113,43 @@ public abstract class MapBaseActivity extends FragmentActivity {
         mSlidingUpPane.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
             public void onPanelSlide(View view, float v) {
-                mMenuPollutant.close(true);
             }
 
             @Override
-            public void onPanelCollapsed(View view) {}
+            public void onPanelCollapsed(View view) {
+                if (!alreadyAnimatedFAB) {
+                    animateFABUp();
+                }
+                alreadyAnimatedFAB = false;
+            }
+
 
             @Override
-            public void onPanelExpanded(View view) {}
+            public void onPanelExpanded(View view) {
+                if (!alreadyAnimatedFAB) {
+                    animateFABDown();
+                }
+                alreadyAnimatedFAB = false;
+            }
 
             @Override
             public void onPanelAnchored(View view) {}
 
             @Override
-            public void onPanelHidden(View view) {}
+            public void onPanelHidden(View view) {
+                if (!alreadyAnimatedFAB) {
+                    animateFABDown();
+                }
+                alreadyAnimatedFAB = false;
+            }
         });
         mSlidinPaneLayout.getLayoutParams().height = (int) (height*0.65);
         mSlidingMenu = new SlidingMenuHandler(this);
+    }
+
+    private int getPx(float dp) {
+        return (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics());
     }
 
     @Override
@@ -307,8 +330,10 @@ public abstract class MapBaseActivity extends FragmentActivity {
 
         @Override
         protected void onPostExecute(String address) {
-            mPullupTitle.setText(address);
-            mPointOfInterestMarker.setTitle(address);
+            try {
+                mPullupTitle.setText(address);
+                mPointOfInterestMarker.setTitle(address);
+            } catch (NullPointerException ignored) {}
         }
     }
 
@@ -317,10 +342,10 @@ public abstract class MapBaseActivity extends FragmentActivity {
 //        restore last used pollutant
         Integer pollutant = mGVar.data.getLastFABPollutant();
         mGVar.Pollutant.setPollutant(pollutant);
-        ImageView menu_icon = mMenuPollutant.getMenuIconView();
+        ImageView menu_icon = mFABPollutants.getMenuIconView();
         menu_icon.setImageResource(mGVar.Pollutant.icon);
-        mMenuPollutant.setMenuButtonColorNormalResId(mGVar.Pollutant.color);
-        mMenuPollutant.setMenuButtonColorPressedResId(mGVar.Pollutant.color_pressed);
+        mFABPollutants.setMenuButtonColorNormalResId(mGVar.Pollutant.color);
+        mFABPollutants.setMenuButtonColorPressedResId(mGVar.Pollutant.color_pressed);
 
         for(int i=1; i<=mGVar.Pollutant.nOfPollutants; i++) {
             FloatingActionButton fab = new FloatingActionButton(this);
@@ -340,25 +365,26 @@ public abstract class MapBaseActivity extends FragmentActivity {
                     Integer pollutant = (int) view.getTag();
                     mGVar.data.setLastFABPollutant(pollutant);
                     mGVar.Pollutant.setPollutant(pollutant);
-                    mMenuPollutant.setMenuButtonColorNormalResId(mGVar.Pollutant.color);
-                    mMenuPollutant.setMenuButtonColorPressedResId(mGVar.Pollutant.color_pressed);
-                    mMenuPollutant.close(true);
+                    mFABPollutants.setMenuButtonColorNormalResId(mGVar.Pollutant.color);
+                    mFABPollutants.setMenuButtonColorPressedResId(mGVar.Pollutant.color_pressed);
+                    mFABPollutants.close(true);
                 }
             });
             fab.setColorPressedResId(p.color_pressed);
-            mMenuPollutant.addMenuButton(fab);
+            mFABPollutants.addMenuButton(fab);
         }
         createCustomAnimation();
     }
 
     private void createCustomAnimation() {
+//        FAB image
         AnimatorSet set = new AnimatorSet();
 
-        ObjectAnimator scaleOutX = ObjectAnimator.ofFloat(mMenuPollutant.getMenuIconView(), "scaleX", 1.0f, 0.2f);
-        ObjectAnimator scaleOutY = ObjectAnimator.ofFloat(mMenuPollutant.getMenuIconView(), "scaleY", 1.0f, 0.2f);
+        ObjectAnimator scaleOutX = ObjectAnimator.ofFloat(mFABPollutants.getMenuIconView(), "scaleX", 1.0f, 0.2f);
+        ObjectAnimator scaleOutY = ObjectAnimator.ofFloat(mFABPollutants.getMenuIconView(), "scaleY", 1.0f, 0.2f);
 
-        ObjectAnimator scaleInX = ObjectAnimator.ofFloat(mMenuPollutant.getMenuIconView(), "scaleX", 0.2f, 1.0f);
-        ObjectAnimator scaleInY = ObjectAnimator.ofFloat(mMenuPollutant.getMenuIconView(), "scaleY", 0.2f, 1.0f);
+        ObjectAnimator scaleInX = ObjectAnimator.ofFloat(mFABPollutants.getMenuIconView(), "scaleX", 0.2f, 1.0f);
+        ObjectAnimator scaleInY = ObjectAnimator.ofFloat(mFABPollutants.getMenuIconView(), "scaleY", 0.2f, 1.0f);
 
         scaleOutX.setDuration(50);
         scaleOutY.setDuration(50);
@@ -369,7 +395,7 @@ public abstract class MapBaseActivity extends FragmentActivity {
         scaleInX.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
-                mMenuPollutant.getMenuIconView().setImageResource(mMenuPollutant.isOpened()
+                mFABPollutants.getMenuIconView().setImageResource(mFABPollutants.isOpened()
                         ? R.drawable.ic_close : mGVar.Pollutant.icon);
             }
         });
@@ -378,6 +404,40 @@ public abstract class MapBaseActivity extends FragmentActivity {
         set.play(scaleInX).with(scaleInY).after(scaleOutX);
         set.setInterpolator(new OvershootInterpolator(2));
 
-        mMenuPollutant.setIconToggleAnimatorSet(set);
+        mFABPollutants.setIconToggleAnimatorSet(set);
+
+//        FAB margin
+        final int margin = getPx(40);
+        FABDownAnimation = new Animation() {
+
+            @Override
+            protected void applyTransformation(float interpolatedTime, Transformation t) {
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mFABPollutants.getLayoutParams();
+                params.bottomMargin = (int)(margin - margin*interpolatedTime);
+                mFABPollutants.setLayoutParams(params);
+            }
+        };
+        FABDownAnimation.setDuration(100); // in ms
+
+        FABUpAnimation = new Animation() {
+
+            @Override
+            protected void applyTransformation(float interpolatedTime, Transformation t) {
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mFABPollutants.getLayoutParams();
+                params.bottomMargin = (int)(margin * interpolatedTime);
+                mFABPollutants.setLayoutParams(params);
+            }
+        };
+        FABUpAnimation.setDuration(100); // in ms
+
+
+    }
+
+    public void animateFABDown() {
+        mFABPollutants.startAnimation(FABDownAnimation);
+    }
+
+    public void animateFABUp() {
+        mFABPollutants.startAnimation(FABUpAnimation);
     }
 }
