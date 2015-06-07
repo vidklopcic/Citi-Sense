@@ -35,7 +35,7 @@
                 android:name="eu.citi_sense.vic.citi_sense.support_classes.fragments.SearchFragment"
                 android:id="@+id/stations_search"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="65dp"
                 tools:layout="@layout/search_fragment" />
             <TextView
                 android:layout_width="match_parent"

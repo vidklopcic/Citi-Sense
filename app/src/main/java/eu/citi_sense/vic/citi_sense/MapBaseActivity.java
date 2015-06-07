@@ -73,8 +73,6 @@ public abstract class MapBaseActivity extends FragmentActivity {
     private Marker mCurrentLocationMarker = null;
     private Charts mCharts = new Charts();
     private RelativeLayout mSlidinPaneLayout;
-    private AutoCompleteTextView mSearchField;
-    private ImageView mMicButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,8 +81,6 @@ public abstract class MapBaseActivity extends FragmentActivity {
         mSlidinPaneLayout = (RelativeLayout) findViewById(R.id.sliding_pane_layout);
         mFABPollutants = (FloatingActionMenu) findViewById(R.id.menu_pollutant);
         mSlidingUpPane = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
-        mSearchField = (AutoCompleteTextView) findViewById(R.id.map_search_field);
-        mMicButton = (ImageView) findViewById(R.id.map_mic_btn);
         setupGui();
 
         mPullupTitle = (TextView) findViewById(R.id.pullup_title);
@@ -153,12 +149,6 @@ public abstract class MapBaseActivity extends FragmentActivity {
         });
         mSlidinPaneLayout.getLayoutParams().height = (int) (height*0.65);
         mSlidingMenu = new SlidingMenuHandler(this);
-        mMicButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                promptSpeechInput();
-            }
-        });
     }
 
     private int getPx(float dp) {
@@ -335,46 +325,6 @@ public abstract class MapBaseActivity extends FragmentActivity {
 
     public void setPullupTitle(LatLng position) {
         new setPullupTitle().execute(position);
-    }
-
-    /**
-     * Showing google speech input dialog
-     * */
-    private void promptSpeechInput() {
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
-                getString(R.string.speech_prompt));
-        try {
-            startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
-        } catch (ActivityNotFoundException a) {
-            Toast.makeText(getApplicationContext(),
-                    getString(R.string.speech_not_supported),
-                    Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    /**
-     * Receiving speech input
-     * */
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        switch (requestCode) {
-            case REQ_CODE_SPEECH_INPUT: {
-                if (resultCode == RESULT_OK && null != data) {
-
-                    ArrayList<String> result = data
-                            .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                    mSearchField.setText(result.get(0));
-                }
-                break;
-            }
-
-        }
     }
 
     class setPullupTitle extends AsyncTask<LatLng, Void, String> {
