@@ -23,31 +23,36 @@
                 xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
                 android:layout_height="match_parent" android:id="@+id/map" tools:context=".MapActivity"
                 android:name="com.google.android.gms.maps.SupportMapFragment" />
-            <LinearLayout
+            <RelativeLayout
+                android:id="@+id/map_search_wrapper"
                 android:layout_width="match_parent"
                 android:layout_height="65dp"
                 android:orientation="horizontal"
                 android:background="@drawable/card">
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp"
-                    android:src="@drawable/ic_magnify_grey600_36dp"
-                    android:contentDescription="@string/search_description" />
                 <AutoCompleteTextView
-                    android:id="@+id/search_field"
+                    android:id="@+id/map_search_field"
                     android:layout_marginLeft="10dp"
+                    android:layout_centerInParent="true"
+                    android:layout_alignParentLeft="true"
                     android:layout_marginRight="10dp"
                     android:layout_gravity="start|center"
-                    android:layout_width="match_parent"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text"
                     android:background="@color/transparent"
                     android:hint="@string/search_hint"
-                    android:textSize="15sp"
-                    android:textColor="@color/text_color"/>
-            </LinearLayout>
+                    android:textSize="16sp"
+                    android:textColor="@color/text_color"
+                    android:layout_toLeftOf="@+id/map_mic_btn" />
+                <ImageView
+                    android:id="@+id/map_mic_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="12dp"
+                    android:src="@drawable/ic_microphone"
+                    android:contentDescription="@string/search_description"
+                    android:layout_alignParentRight="true"/>
+            </RelativeLayout>
         </RelativeLayout>
 
         <RelativeLayout

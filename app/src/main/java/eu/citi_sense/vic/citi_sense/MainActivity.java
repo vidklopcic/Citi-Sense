@@ -1,6 +1,7 @@
 package eu.citi_sense.vic.citi_sense;
 
 import android.location.Location;
+import android.view.View;
 
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;

@@ -25,4 +25,7 @@
     <string name="title_activity_analysis">Analysis</string>
     <string name="title_activity_main_activity2">MainActivity2Activity</string>
     <string name="open_sliding_menu">Sliding Menu</string>
+    <string name="speech_prompt">Speak!</string>
+    <string name="speech_not_supported">Sorry! Your device doesn\'t support speech input</string>
+    <string name="tap_on_mic">Tap on mic to speak</string>
 </resources>

@@ -3,6 +3,8 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.location.Location;
@@ -10,6 +12,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.support.v4.app.FragmentActivity;
 import android.util.TypedValue;
 import android.view.Display;
@@ -18,10 +21,12 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.Transformation;
+import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
@@ -39,6 +44,7 @@ import com.google.maps.android.clustering.ClusterManager;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Map;
 
 import eu.citi_sense.vic.citi_sense.global.GlobalVariables;
@@ -50,6 +56,7 @@ import eu.citi_sense.vic.citi_sense.support_classes.sliding_menu.SlidingMenuList
 import eu.citi_sense.vic.citi_sense.support_classes.sliding_menu.SlidingMenuHandler;
 
 public abstract class MapBaseActivity extends FragmentActivity {
+    private static final int REQ_CODE_SPEECH_INPUT = 100;
     public GoogleMap mMap; // Might be null if Google Play services APK is not available.
     public GlobalVariables mGVar;
     public Marker mPointOfInterestMarker = null;
@@ -66,7 +73,8 @@ public abstract class MapBaseActivity extends FragmentActivity {
     private Marker mCurrentLocationMarker = null;
     private Charts mCharts = new Charts();
     private RelativeLayout mSlidinPaneLayout;
-
+    private AutoCompleteTextView mSearchField;
+    private ImageView mMicButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +83,8 @@ public abstract class MapBaseActivity extends FragmentActivity {
         mSlidinPaneLayout = (RelativeLayout) findViewById(R.id.sliding_pane_layout);
         mFABPollutants = (FloatingActionMenu) findViewById(R.id.menu_pollutant);
         mSlidingUpPane = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+        mSearchField = (AutoCompleteTextView) findViewById(R.id.map_search_field);
+        mMicButton = (ImageView) findViewById(R.id.map_mic_btn);
         setupGui();
 
         mPullupTitle = (TextView) findViewById(R.id.pullup_title);
@@ -130,7 +140,8 @@ public abstract class MapBaseActivity extends FragmentActivity {
             }
 
             @Override
-            public void onPanelAnchored(View view) {}
+            public void onPanelAnchored(View view) {
+            }
 
             @Override
             public void onPanelHidden(View view) {
@@ -142,6 +153,12 @@ public abstract class MapBaseActivity extends FragmentActivity {
         });
         mSlidinPaneLayout.getLayoutParams().height = (int) (height*0.65);
         mSlidingMenu = new SlidingMenuHandler(this);
+        mMicButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                promptSpeechInput();
+            }
+        });
     }
 
     private int getPx(float dp) {
@@ -318,6 +335,46 @@ public abstract class MapBaseActivity extends FragmentActivity {
 
     public void setPullupTitle(LatLng position) {
         new setPullupTitle().execute(position);
+    }
+
+    /**
+     * Showing google speech input dialog
+     * */
+    private void promptSpeechInput() {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
+                getString(R.string.speech_prompt));
+        try {
+            startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
+        } catch (ActivityNotFoundException a) {
+            Toast.makeText(getApplicationContext(),
+                    getString(R.string.speech_not_supported),
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Receiving speech input
+     * */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case REQ_CODE_SPEECH_INPUT: {
+                if (resultCode == RESULT_OK && null != data) {
+
+                    ArrayList<String> result = data
+                            .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    mSearchField.setText(result.get(0));
+                }
+                break;
+            }
+
+        }
     }
 
     class setPullupTitle extends AsyncTask<LatLng, Void, String> {

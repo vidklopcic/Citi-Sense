@@ -1,11 +1,13 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="eu.citi_sense.vic.citi_sense.StationsActivity"
-    android:padding="0px">
+    android:padding="0px"
+    android:orientation="vertical"
+    android:background="@color/light_gray_background">
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/stations_toolbar"
@@ -21,4 +23,35 @@
             android:src="@drawable/ic_menu_white_24dp"
             android:onClick="menuBtnClicked"/>
     </LinearLayout>
-</RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/search_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="65dp"
+        android:orientation="horizontal"
+        android:background="@drawable/card">
+        <AutoCompleteTextView
+            android:id="@+id/search_field"
+            android:layout_marginLeft="10dp"
+            android:layout_centerInParent="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginRight="10dp"
+            android:layout_gravity="start|center"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:background="@color/transparent"
+            android:hint="@string/search_hint"
+            android:textSize="16sp"
+            android:textColor="@color/text_color"
+            android:layout_toLeftOf="@+id/mic_btn"/>
+        <ImageView
+            android:id="@+id/mic_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="12dp"
+            android:src="@drawable/ic_microphone"
+            android:contentDescription="@string/search_description"
+            android:layout_alignParentRight="true"
+            android:onClick="micBtnClicked"/>
+    </RelativeLayout>
+</LinearLayout>
