@@ -63,7 +63,6 @@ public abstract class MapBaseActivity extends FragmentActivity {
     private Animation FABDownAnimation;
     private Animation FABUpAnimation;
     private ClusterManager<ClusterStation> mClusterManager;
-    private SharedPreferences mSharedPreferences;
     private Marker mCurrentLocationMarker = null;
     private Charts mCharts = new Charts();
     private RelativeLayout mSlidinPaneLayout;
@@ -73,10 +72,6 @@ public abstract class MapBaseActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
         mGVar = (GlobalVariables) getApplicationContext();
-        mSharedPreferences = getSharedPreferences(
-                getString(R.string.shared_references_name), MODE_PRIVATE
-        );
-        loadSettings();
         mSlidinPaneLayout = (RelativeLayout) findViewById(R.id.sliding_pane_layout);
         mFABPollutants = (FloatingActionMenu) findViewById(R.id.menu_pollutant);
         mSlidingUpPane = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
@@ -103,11 +98,6 @@ public abstract class MapBaseActivity extends FragmentActivity {
                 SlidingMenuListeners.MAP_ACTIVITY, mSlidingMenu, this);
     }
 
-    protected void loadSettings() {
-        int currentPollutant = mSharedPreferences.getInt(
-                mGVar.Keys.last_pollutant, Pollutants.CO);
-        mGVar.Pollutant.setPollutant(currentPollutant);
-    }
     protected void setupGui() {
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -213,7 +203,7 @@ public abstract class MapBaseActivity extends FragmentActivity {
 
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         Location lastLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                 new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()), 14));
         LocationListener locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {

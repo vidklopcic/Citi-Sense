@@ -1,11 +1,13 @@
 package eu.citi_sense.vic.citi_sense;
 
 import android.app.Activity;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.LinearLayout;
+import android.support.v7.widget.Toolbar;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.LineData;
@@ -35,5 +37,9 @@ public class StationsActivity extends Activity {
         LinearLayout stationsButton = (LinearLayout) findViewById(R.id.sliding_menu_stations);
         new SlidingMenuListeners(mapButton, analysisButton, stationsButton,
                 SlidingMenuListeners.STATIONS_ACTIVITY, mSlidingMenu, this);
+    }
+
+    public void menuBtnClicked(View view) {
+        mSlidingMenu.menu.showMenu(true);
     }
 }
