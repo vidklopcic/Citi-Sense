@@ -105,7 +105,7 @@ public abstract class MapBaseActivity extends FragmentActivity {
 
     protected void loadSettings() {
         int currentPollutant = mSharedPreferences.getInt(
-                mGVar.Keys.last_pollutant, mGVar.Pollutant.CO);
+                mGVar.Keys.last_pollutant, Pollutants.CO);
         mGVar.Pollutant.setPollutant(currentPollutant);
     }
     protected void setupGui() {
@@ -212,6 +212,9 @@ public abstract class MapBaseActivity extends FragmentActivity {
         mMap.setOnMapClickListener(onMapClickListener);
 
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        Location lastLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()), 14));
         LocationListener locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
                 LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());

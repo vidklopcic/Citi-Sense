@@ -5,15 +5,16 @@ import android.graphics.Color;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import eu.citi_sense.vic.citi_sense.R;
 import eu.citi_sense.vic.citi_sense.global.Databases.CachedData;
 
 public class Data {
-    public String LAST_FAB_POLLUTANT = "last-FAB-pollutant";
+    public static final String LAST_FAB_POLLUTANT = "last-FAB-pollutant";
+    public static final String LAST_LAT = "last-location-lat";
+    public static final String LAST_LNG = "last-location-lng";
     CachedData mCachedData;
     public Data() {
         mCachedData = new CachedData();
@@ -29,12 +30,12 @@ public class Data {
 
     public LineData getAQIData(int count, float range) {
 
-        ArrayList<String> xVals = new ArrayList<String>();
+        ArrayList<String> xVals = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             xVals.add(Integer.toString(i % 24));
         }
 
-        ArrayList<Entry> yVals = new ArrayList<Entry>();
+        ArrayList<Entry> yVals = new ArrayList<>();
 
         for (int i = 0; i < count; i++) {
             float val = (float) (Math.random() * range) + 3;
@@ -53,13 +54,12 @@ public class Data {
         set1.setHighLightColor(Color.WHITE);
         set1.setDrawValues(false);
 
-        ArrayList<LineDataSet> dataSets = new ArrayList<LineDataSet>();
+        ArrayList<LineDataSet> dataSets = new ArrayList<>();
         dataSets.add(set1); // add the datasets
 
         // create a data object with the datasets
-        LineData data = new LineData(xVals, dataSets);
 
-        return data;
+        return new LineData(xVals, dataSets);
     }
 
 }
