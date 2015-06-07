@@ -351,33 +351,33 @@ public abstract class MapBaseActivity extends FragmentActivity {
         mGVar.Pollutant.setPollutant(pollutant);
         ImageView menu_icon = mFABPollutants.getMenuIconView();
         menu_icon.setImageResource(mGVar.Pollutant.icon);
-        mFABPollutants.setMenuButtonColorNormalResId(mGVar.Pollutant.color);
-        mFABPollutants.setMenuButtonColorPressedResId(mGVar.Pollutant.color_pressed);
+        mFABPollutants.setMenuButtonColorNormal(mGVar.Pollutant.color);
+        mFABPollutants.setMenuButtonColorPressed(mGVar.Pollutant.color_pressed);
 
         for(int i=1; i<=mGVar.Pollutant.nOfPollutants; i++) {
             FloatingActionButton fab = new FloatingActionButton(this);
             Pollutants p = mGVar.Pollutant.getPollutant(i);
             fab.setImageDrawable(getResources().getDrawable(p.icon));
             fab.setButtonSize(FloatingActionButton.SIZE_MINI);
-            fab.setLabelText(getString(p.description));
+            fab.setLabelText(getString(p.description) + ": " + p.aqi.toString());
             Animation animation = AnimationUtils.loadAnimation(
                     getApplicationContext(), R.anim.abc_shrink_fade_out_from_bottom);
             fab.setHideAnimation(animation);
             fab.setTag(i);
-            fab.setBackgroundColor(p.color);
-            fab.setColorNormalResId(p.color);
+//            fab.setBackgroundColor(p.color);
+            fab.setColorNormal(p.color);
             fab.setOnClickListener(new FloatingActionButton.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Integer pollutant = (int) view.getTag();
                     mGVar.data.setLastFABPollutant(pollutant);
                     mGVar.Pollutant.setPollutant(pollutant);
-                    mFABPollutants.setMenuButtonColorNormalResId(mGVar.Pollutant.color);
-                    mFABPollutants.setMenuButtonColorPressedResId(mGVar.Pollutant.color_pressed);
+                    mFABPollutants.setMenuButtonColorNormal(mGVar.Pollutant.color);
+                    mFABPollutants.setMenuButtonColorPressed(mGVar.Pollutant.color_pressed);
                     mFABPollutants.close(true);
                 }
             });
-            fab.setColorPressedResId(p.color_pressed);
+            fab.setColorPressed(p.color_pressed);
             mFABPollutants.addMenuButton(fab);
         }
         createCustomAnimation();

@@ -35,7 +35,7 @@
                     android:layout_marginBottom="10dp"
                     android:src="@drawable/ic_magnify_grey600_36dp"
                     android:contentDescription="@string/search_description" />
-                <EditText
+                <AutoCompleteTextView
                     android:id="@+id/search_field"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"

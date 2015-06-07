@@ -6,8 +6,14 @@ import com.orm.SugarApp;
 
 public class GlobalVariables extends SugarApp {
     public MapVariables mMap = new MapVariables();
-    public Pollutants Pollutant = new Pollutants();
+    public Pollutants Pollutant;
     public SharedPreferencesKeys Keys = new SharedPreferencesKeys();
     public Data data = new Data();
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Pollutant = new Pollutants(getApplicationContext());
+    }
 }
 

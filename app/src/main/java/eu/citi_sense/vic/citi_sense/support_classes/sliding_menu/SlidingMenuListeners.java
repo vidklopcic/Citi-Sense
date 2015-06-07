@@ -6,7 +6,6 @@ import android.view.View;
 import android.widget.LinearLayout;
 
 import eu.citi_sense.vic.citi_sense.AnalysisActivity;
-import eu.citi_sense.vic.citi_sense.MapBaseActivity;
 import eu.citi_sense.vic.citi_sense.StationsActivity;
 
 public class SlidingMenuListeners {

@@ -1,5 +1,6 @@
 package eu.citi_sense.vic.citi_sense;
 
+import android.app.Activity;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -15,7 +16,7 @@ import eu.citi_sense.vic.citi_sense.support_classes.sliding_menu.SlidingMenuHand
 import eu.citi_sense.vic.citi_sense.support_classes.sliding_menu.SlidingMenuListeners;
 
 
-public class AnalysisActivity extends ActionBarActivity {
+public class AnalysisActivity extends Activity {
     private GlobalVariables mGVar;
     private Charts mCharts = new Charts();
     private SlidingMenuHandler mSlidingMenu;

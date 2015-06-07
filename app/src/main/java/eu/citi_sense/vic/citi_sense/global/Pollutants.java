@@ -1,43 +1,65 @@
 package eu.citi_sense.vic.citi_sense.global;
+import android.animation.ArgbEvaluator;
+import android.content.Context;
+import android.graphics.Color;
+
+import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import eu.citi_sense.vic.citi_sense.R;
 
 public class Pollutants {
     public int nOfPollutants = 8;
-    public int CO = 1;
-    public int CO2 = 2;
-    public int H2O = 3;
-    public int NO = 4;
-    public int O3 = 5;
-    public int PM10 = 6;
-    public int PM2_5 = 7;
-    public int SO2 = 8;
+    public static final int CO = 1;
+    public static final int CO2 = 2;
+    public static final int H2O = 3;
+    public static final int NO = 4;
+    public static final int O3 = 5;
+    public static final int PM10 = 6;
+    public static final int PM2_5 = 7;
+    public static final int SO2 = 8;
     
-    public int icon;
-    public int description;
-    public int aqi;
-    public int current;
-    public int color;
-    public int color_pressed;
+    public Integer icon;
+    public Integer description;
+    public Integer aqi;
+    public Integer current;
+    public Integer color;
+    public Integer color_pressed;
 
-    public int COAqi = 0;
-    public int CO2Aqi = 100;
-    public int H2OAqi = 200;
-    public int NOAqi = 300;
-    public int O3Aqi = 400;
-    public int PM10Aqi = 500;
-    public int PM2_5Aqi = 50;
-    public int SO2Aqi = 10;
+    HashMap<Integer, Integer> pollutantsAqi = new HashMap<>();
 
-    public ArrayList<PollutionCallback> pollutionCallbacks = new ArrayList<>();
+    private Context context;
+    public Pollutants(Context context) {
+        this.context = context;
+        initializeAqis();
+    }
+
+    public void initializeAqis() {
+        pollutantsAqi.put(CO, 80);
+        pollutantsAqi.put(CO2, 20);
+        pollutantsAqi.put(H2O, 0);
+        pollutantsAqi.put(NO, 31);
+        pollutantsAqi.put(O3, 20);
+        pollutantsAqi.put(PM10, 200);
+        pollutantsAqi.put(PM2_5, 150);
+        pollutantsAqi.put(SO2, 75);
+    }
+
+    public PollutionCallback pollutionCallback;
 
     public interface PollutionCallback {
-        void onClick();
+        void pollutantChanged();
+
+        void pollutantUpdated(int pollutant);
     }
 
     public void setPollutionChangeListener(PollutionCallback callback) {
-        pollutionCallbacks.add(callback);
+        pollutionCallback = callback;
+    }
+
+    public void removePollutionChangeListener() {
+        pollutionCallback = null;
     }
 
     public void setPollutant(int pollutant) {
@@ -70,7 +92,7 @@ public class Pollutants {
     }
 
     public Pollutants getPollutant(int pollutant) {
-        Pollutants p = new Pollutants();
+        Pollutants p = new Pollutants(context);
         switch (pollutant) {
             case 1:
                 p.setCO();
@@ -104,56 +126,56 @@ public class Pollutants {
     private void setCO() {
         icon = R.drawable.ic_co;
         description = R.string.CO_description;
-        aqi = COAqi;
+        aqi = pollutantsAqi.get(CO);
         current = 1;
         afterChange();
     }
     private void setCO2() {
         icon = R.drawable.ic_co2;
         description = R.string.CO2_description;
-        aqi = CO2Aqi;
+        aqi = pollutantsAqi.get(CO2);
         current = 2;
         afterChange();
     }
     private void setH2O() {
         icon = R.drawable.ic_h2o;
         description = R.string.H2O_description;
-        aqi = H2OAqi;
+        aqi = pollutantsAqi.get(H2O);
         current = 3;
         afterChange();
     }
     private void setNO() {
         icon = R.drawable.ic_no;
         description = R.string.NO_description;
-        aqi = NOAqi;
+        aqi = pollutantsAqi.get(NO);
         current = 4;
         afterChange();
     }
     private void setO3() {
         icon = R.drawable.ic_o3;
         description = R.string.O3_description;
-        aqi = O3Aqi;
+        aqi = pollutantsAqi.get(O3);
         current = 5;
         afterChange();
     }
     private void setPM10() {
         icon = R.drawable.ic_pm10;
         description = R.string.PM10_description;
-        aqi = PM10Aqi;
+        aqi = pollutantsAqi.get(PM10);
         current = 6;
         afterChange();
     }
     private void setPM2_5() {
         icon = R.drawable.ic_pm2;
         description = R.string.PM2_5_description;
-        aqi = PM2_5Aqi;
+        aqi = pollutantsAqi.get(PM2_5);
         current = 7;
         afterChange();
     }
     private void setSO2() {
         icon = R.drawable.ic_so2;
         description = R.string.SO2_description;
-        aqi = SO2Aqi;
+        aqi = pollutantsAqi.get(SO2);
         current = 8;
         afterChange();
     }
@@ -162,24 +184,69 @@ public class Pollutants {
         int[] colors = getColors(aqi);
         color = colors[0];
         color_pressed = colors[1];
-        for (PollutionCallback pc: pollutionCallbacks) {
-            pc.onClick();
+        if (pollutionCallback != null) {
+            pollutionCallback.pollutantChanged();
         }
     }
 
     private int[] getColors(int cAqi) {
+        int proportion;
+        int start_color;
+        int end_color;
+        int start_color_pressed;
+        int end_color_pressed;
         if (cAqi < 51) {
-            return new int[]{R.color.aqi_good, R.color.aqi_good_pressed};
+            proportion = cAqi*2;
+            start_color = context.getResources().getColor(R.color.aqi_good);
+            end_color = context.getResources().getColor(R.color.aqi_moderate);
+            start_color_pressed = context.getResources().getColor(R.color.aqi_good_pressed);
+            end_color_pressed = context.getResources().getColor(R.color.aqi_moderate_pressed);
         } else if (cAqi < 101) {
-            return new int[]{R.color.aqi_moderate, R.color.aqi_moderate_pressed};
+            proportion = (cAqi-50)*2;
+            start_color = context.getResources().getColor(R.color.aqi_moderate);
+            end_color = context.getResources().getColor(R.color.aqi_unhealthy_for_sensitive);
+            start_color_pressed = context.getResources().getColor(R.color.aqi_moderate_pressed);
+            end_color_pressed = context.getResources().getColor(R.color.aqi_unhealthy_for_sensitive_pressed);
         } else if (cAqi < 151) {
-            return new int[]{R.color.aqi_unhealthy_for_sensitive, R.color.aqi_unhealthy_for_sensitive_pressed};
+            proportion = (cAqi-100)*2;
+            start_color = context.getResources().getColor(R.color.aqi_unhealthy_for_sensitive);
+            end_color = context.getResources().getColor(R.color.aqi_unhealthy);
+            start_color_pressed = context.getResources().getColor(R.color.aqi_unhealthy_for_sensitive_pressed);
+            end_color_pressed = context.getResources().getColor(R.color.aqi_unhealthy_pressed);
         } else if (cAqi < 201) {
-            return new int[]{R.color.aqi_unhealthy, R.color.aqi_unhealthy_pressed};
+            proportion = (cAqi-150)*2;
+            start_color = context.getResources().getColor(R.color.aqi_unhealthy);
+            end_color = context.getResources().getColor(R.color.aqi_very_unhealthy);
+            start_color_pressed = context.getResources().getColor(R.color.aqi_unhealthy_pressed);
+            end_color_pressed = context.getResources().getColor(R.color.aqi_very_unhealthy_pressed);
         } else if (cAqi < 301) {
-            return new int[]{R.color.aqi_very_unhealthy, R.color.aqi_very_unhealthy_pressed};
+            proportion = cAqi-200;
+            start_color = context.getResources().getColor(R.color.aqi_very_unhealthy);
+            end_color = context.getResources().getColor(R.color.aqi_hazardous);
+            start_color_pressed = context.getResources().getColor(R.color.aqi_very_unhealthy_pressed);
+            end_color_pressed = context.getResources().getColor(R.color.aqi_hazardous_pressed);
         } else {
-            return new int[]{R.color.aqi_hazardous, R.color.aqi_hazardous_pressed};
+            return new int[]{
+                    context.getResources().getColor(R.color.aqi_hazardous),
+                    context.getResources().getColor(R.color.aqi_hazardous_pressed)};
+        }
+
+        int color = interpolateColor(
+                start_color, end_color, proportion);
+        int colorPressed = interpolateColor(
+                start_color_pressed, end_color_pressed, proportion);
+        return new int[]{color, colorPressed};
+    }
+
+    private int interpolateColor(int a, int b, int percentage) {
+        float proportion = (float) (percentage / 100.0);
+        return (int) new ArgbEvaluator().evaluate(proportion, a, b);
+    }
+
+    public void updatePollutant(int pollutant, int aqi) {
+        pollutantsAqi.put(pollutant, aqi);
+        if (pollutionCallback != null) {
+            pollutionCallback.pollutantUpdated(pollutant);
         }
     }
 }
