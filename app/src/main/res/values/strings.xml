@@ -28,4 +28,6 @@
     <string name="speech_prompt">Speak!</string>
     <string name="speech_not_supported">Sorry! Your device doesn\'t support speech input</string>
     <string name="tap_on_mic">Tap on mic to speak</string>
+    <string name="your_stations">your stations</string>
+    <string name="add_station">add station</string>
 </resources>
