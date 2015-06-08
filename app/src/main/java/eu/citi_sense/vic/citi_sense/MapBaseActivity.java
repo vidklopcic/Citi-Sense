@@ -17,6 +17,9 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.OvershootInterpolator;
+import android.view.animation.Transformation;
+import android.view.animation.TranslateAnimation;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -40,6 +43,7 @@ import java.util.ArrayList;
 
 import eu.citi_sense.vic.citi_sense.global.Databases.Station;
 import eu.citi_sense.vic.citi_sense.global.GlobalVariables;
+import eu.citi_sense.vic.citi_sense.global.MapVariables;
 import eu.citi_sense.vic.citi_sense.global.Pollutants;
 import eu.citi_sense.vic.citi_sense.support_classes.Charts;
 import eu.citi_sense.vic.citi_sense.support_classes.general_widgets.SearchFragment;
@@ -50,7 +54,7 @@ import eu.citi_sense.vic.citi_sense.support_classes.sliding_menu.SlidingMenuList
 import eu.citi_sense.vic.citi_sense.support_classes.sliding_menu.SlidingMenuHandler;
 
 public abstract class MapBaseActivity extends FragmentActivity implements ActionBarFragment.MenuClickInterface {
-    private static final int REQ_CODE_SPEECH_INPUT = 100;
+
     public GoogleMap mMap; // Might be null if Google Play services APK is not available.
     public GlobalVariables mGVar;
     public Marker mPointOfInterestMarker = null;
@@ -62,23 +66,31 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
     public boolean alreadyAnimatedFAB = false;
     public ActionBarFragment mActionBarFragment;
     public SearchFragment mSearchFragment;
-    private Animation FABDownAnimation;
-    private Animation FABUpAnimation;
+    private Animation mMapUpAnimation;
+    private Integer mapOffset;
+    private Animation mMapDownAnimation;
     private ClusterManager<ClusterStation> mClusterManager;
+    private boolean mapIsUp = false;
+    private FrameLayout mMapWrapper;
     private Marker mCurrentLocationMarker = null;
     private Charts mCharts = new Charts();
     private RelativeLayout mSlidinPaneLayout;
+    public int animationDuration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
         mGVar = (GlobalVariables) getApplicationContext();
+        animationDuration = MapVariables.animationDuration;
+        mapOffset = Float.valueOf(getResources().getDimension(R.dimen.pullup_panel_height)/2).intValue();
+        mapOffset -= getPx(55)/2;
         mSlidinPaneLayout = (RelativeLayout) findViewById(R.id.sliding_pane_layout);
         mFABPollutants = (FloatingActionMenu) findViewById(R.id.menu_pollutant);
         mActionBarFragment = (ActionBarFragment) getFragmentManager().findFragmentById(R.id.map_action_bar_fragment);
         mSearchFragment = (SearchFragment) getFragmentManager().findFragmentById(R.id.map_search_fragment);
         mSlidingUpPane = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+        mMapWrapper = (FrameLayout) findViewById(R.id.map_fragment_wrapper);
         setupGui();
 
         mPlaces = new Places(this);
@@ -411,18 +423,57 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
         set.play(scaleOutX).with(scaleOutY);
         set.play(scaleInX).with(scaleInY).after(scaleOutX);
         set.setInterpolator(new OvershootInterpolator(2));
-        mFABPollutants.setIconToggleAnimatorSet(set);
+        mMapDownAnimation = new Animation() {
 
+            @Override
+            protected void applyTransformation(float interpolatedTime, Transformation t) {
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mMapWrapper.getLayoutParams();
+                int calculatedOffset = (int)(mapOffset-mapOffset*interpolatedTime);
+                params.bottomMargin = calculatedOffset;
+                params.topMargin = -calculatedOffset;
+                mMapWrapper.setLayoutParams(params);
+            }
+        };
+        mMapDownAnimation.setDuration(animationDuration); // in ms
 
+        mMapUpAnimation = new Animation() {
+
+            @Override
+            protected void applyTransformation(float interpolatedTime, Transformation t) {
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mMapWrapper.getLayoutParams();
+                int calculatedOffset = (int)(mapOffset * interpolatedTime);
+                params.bottomMargin = calculatedOffset;
+                params.topMargin = -calculatedOffset;
+                mMapWrapper.setLayoutParams(params);
+            }
+        };
+        mMapUpAnimation.setDuration(animationDuration); // in ms
+    }
+
+    public void animateMapDown() {
+        if (mapIsUp) {
+            mMapWrapper.startAnimation(mMapDownAnimation);
+            mapIsUp = false;
+        }
+    }
+
+    public void animateMapUp() {
+        if (!mapIsUp) {
+            mMapWrapper.startAnimation(mMapUpAnimation);
+            mapIsUp = true;
+        }
     }
 
     public void showFab() {
         mFABPollutants.showMenuButton(true);
         mActionBarFragment.hideMenu();
+        mMapWrapper.startAnimation(mMapDownAnimation);
+        animateMapDown();
     }
 
     public void hideFab() {
         mFABPollutants.hideMenuButton(true);
         mActionBarFragment.showMenu();
+        animateMapUp();
     }
 }

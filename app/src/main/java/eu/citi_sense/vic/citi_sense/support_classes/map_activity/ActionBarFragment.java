@@ -38,14 +38,13 @@ public class ActionBarFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        margin = mActivity.getPx(55);
+        margin = mActivity.getPx(56);
         FavoritePlace mFavoritePlace = new FavoritePlace();
         mFavoritePlaces = mFavoritePlace.getFavoritePlaces();
         mFragmentView = (RelativeLayout) inflater.inflate(R.layout.map_action_bar_fragment, container, false);
         mActionBarTitle = (TextView) mFragmentView.findViewById(R.id.map_action_bar_title);
         mFavorite = (ImageView) mFragmentView.findViewById(R.id.add_to_favorites);
         mMenuButton = (ImageView) mFragmentView.findViewById(R.id.map_action_bar_menu_button);
-        createCustomAnimations();
         setOnClickListeners();
         return mFragmentView;
     }
@@ -60,6 +59,7 @@ public class ActionBarFragment extends Fragment {
             throw new ClassCastException(activity.toString()
                     + " must implement MenuClickInterface");
         }
+        createCustomAnimations();
     }
     
     private void setOnClickListeners() {
@@ -151,7 +151,7 @@ public class ActionBarFragment extends Fragment {
             public void onAnimationRepeat(Animation animation) {
             }
         });
-        mHideActionMenuAnimation.setDuration(100); // in ms
+        mHideActionMenuAnimation.setDuration(mActivity.animationDuration); // in ms
 
         mShowActionMenuAnimation = new Animation() {
             @Override
