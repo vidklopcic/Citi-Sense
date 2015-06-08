@@ -9,6 +9,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.util.TypedValue;
@@ -109,6 +110,10 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
         LinearLayout stationsButton = (LinearLayout) findViewById(R.id.sliding_menu_stations);
         new SlidingMenuListeners(mapButton, analysisButton, stationsButton,
                 SlidingMenuListeners.MAP_ACTIVITY, mSlidingMenu, this);
+    }
+
+    public void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        mSlidingUpPane.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
     }
 
     public void menuClicked() {
@@ -422,6 +427,8 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
         set.play(scaleOutX).with(scaleOutY);
         set.play(scaleInX).with(scaleInY).after(scaleOutX);
         set.setInterpolator(new OvershootInterpolator(2));
+        mFABPollutants.setIconToggleAnimatorSet(set);
+
         mMapDownAnimation = new Animation() {
 
             @Override
