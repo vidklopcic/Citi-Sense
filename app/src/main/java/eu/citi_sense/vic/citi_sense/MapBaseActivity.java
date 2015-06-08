@@ -3,17 +3,12 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.content.ActivityNotFoundException;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.graphics.Point;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.speech.RecognizerIntent;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.util.TypedValue;
@@ -22,13 +17,9 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.OvershootInterpolator;
-import android.view.animation.Transformation;
-import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
@@ -38,24 +29,21 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polygon;
-import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.maps.android.clustering.ClusterManager;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.ArrayList;
-import java.util.Locale;
-import java.util.Map;
 
 import eu.citi_sense.vic.citi_sense.global.Databases.Station;
 import eu.citi_sense.vic.citi_sense.global.GlobalVariables;
 import eu.citi_sense.vic.citi_sense.global.Pollutants;
 import eu.citi_sense.vic.citi_sense.support_classes.Charts;
+import eu.citi_sense.vic.citi_sense.support_classes.general_widgets.SearchFragment;
+import eu.citi_sense.vic.citi_sense.support_classes.map_activity.ActionBarFragment;
 import eu.citi_sense.vic.citi_sense.support_classes.map_activity.ClusterStation;
 import eu.citi_sense.vic.citi_sense.support_classes.map_activity.Places;
 import eu.citi_sense.vic.citi_sense.support_classes.sliding_menu.SlidingMenuListeners;
@@ -68,17 +56,19 @@ public abstract class MapBaseActivity extends FragmentActivity {
     public Marker mPointOfInterestMarker = null;
     public Places mPlaces;
     public SlidingUpPanelLayout mSlidingUpPane;
-    public TextView mPullupTitle;
     public boolean isMovingAuto = false;
     public FloatingActionMenu mFABPollutants;
     public SlidingMenuHandler mSlidingMenu;
     public boolean alreadyAnimatedFAB = false;
+    public ActionBarFragment mActionBarFragment;
+    public SearchFragment mSearchFragment;
     private Animation FABDownAnimation;
     private Animation FABUpAnimation;
     private ClusterManager<ClusterStation> mClusterManager;
     private Marker mCurrentLocationMarker = null;
     private Charts mCharts = new Charts();
     private RelativeLayout mSlidinPaneLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,10 +76,10 @@ public abstract class MapBaseActivity extends FragmentActivity {
         mGVar = (GlobalVariables) getApplicationContext();
         mSlidinPaneLayout = (RelativeLayout) findViewById(R.id.sliding_pane_layout);
         mFABPollutants = (FloatingActionMenu) findViewById(R.id.menu_pollutant);
+        mActionBarFragment = (ActionBarFragment) getFragmentManager().findFragmentById(R.id.map_action_bar_fragment);
+        mSearchFragment = (SearchFragment) getFragmentManager().findFragmentById(R.id.map_search_fragment);
         mSlidingUpPane = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
         setupGui();
-
-        mPullupTitle = (TextView) findViewById(R.id.pullup_title);
 
         mPlaces = new Places(this);
         setUpMapIfNeeded();
@@ -116,9 +106,6 @@ public abstract class MapBaseActivity extends FragmentActivity {
         display.getSize(size);
         int width = size.x;
         int height = size.y;
-        float pullUpPaneHeight = getResources().getDimension(R.dimen.pullup_panel_height);
-        Double paralaxOffset = (height-height*0.65) / 2 + pullUpPaneHeight/2;
-        mSlidingUpPane.setParalaxOffset(paralaxOffset.intValue());
         mSlidingUpPane.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
             public void onPanelSlide(View view, float v) {
@@ -127,7 +114,7 @@ public abstract class MapBaseActivity extends FragmentActivity {
             @Override
             public void onPanelCollapsed(View view) {
                 if (!alreadyAnimatedFAB) {
-                    animateFABUp();
+                    hideFab();
                 }
                 alreadyAnimatedFAB = false;
             }
@@ -135,10 +122,6 @@ public abstract class MapBaseActivity extends FragmentActivity {
 
             @Override
             public void onPanelExpanded(View view) {
-                if (!alreadyAnimatedFAB) {
-                    animateFABDown();
-                }
-                alreadyAnimatedFAB = false;
             }
 
             @Override
@@ -148,16 +131,15 @@ public abstract class MapBaseActivity extends FragmentActivity {
             @Override
             public void onPanelHidden(View view) {
                 if (!alreadyAnimatedFAB) {
-                    animateFABDown();
+                    showFab();
                 }
                 alreadyAnimatedFAB = false;
             }
         });
-        mSlidinPaneLayout.getLayoutParams().height = (int) (height*0.65);
         mSlidingMenu = new SlidingMenuHandler(this);
     }
 
-    private int getPx(float dp) {
+    public int getPx(float dp) {
         return (int) TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics());
     }
@@ -184,9 +166,7 @@ public abstract class MapBaseActivity extends FragmentActivity {
         if (mPointOfInterestMarker != null) {
             mPointOfInterestMarker.remove();
             mPointOfInterestMarker = null;
-            mPullupTitle.setText(null);
-            mPullupTitle.invalidate();
-            mPullupTitle.requestLayout();
+            mActionBarFragment.setTitle(null);
             return true;
         } else {
             return false;
@@ -303,17 +283,6 @@ public abstract class MapBaseActivity extends FragmentActivity {
         mMap.setBuildingsEnabled(true);
         mMap.setMyLocationEnabled(true);
 
-        Double lat = 46.1388386;
-        Double lng = 14.6026128;
-        PolygonOptions options= new PolygonOptions().add(
-                new LatLng(lat+0.005, lng+0.005),
-                new LatLng(lat+0.005, lng-0.005),
-                new LatLng(lat-0.005, lng-0.005),
-                new LatLng(lat-0.005, lng+0.005),
-                new LatLng(lat+0.005, lng+0.005)
-        );
-        Polygon polygon = mMap.addPolygon(options);
-        polygon.setFillColor(getResources().getColor(R.color.dark_blue_grey));
         if (mGVar.mMap.cameraPosition != null) {
             mMap.moveCamera(CameraUpdateFactory.newCameraPosition(mGVar.mMap.cameraPosition));
         }
@@ -341,8 +310,8 @@ public abstract class MapBaseActivity extends FragmentActivity {
         return mMap.addMarker(markerOptions);
     }
 
-    public void setPullupTitle(Marker marker) {
-        mPullupTitle.setText("...");
+    public void setActionBarTitle(Marker marker) {
+        mActionBarFragment.setTitle(null);
         new setPullupTitle(marker).execute();
     }
 
@@ -365,7 +334,7 @@ public abstract class MapBaseActivity extends FragmentActivity {
         @Override
         protected void onPostExecute(String address) {
             try {
-                mPullupTitle.setText(address);
+                mActionBarFragment.setTitle(address, mCurrentLocationMarker.getPosition());
                 mPointOfInterestMarker.setTitle(address);
                 mMarker.setTitle(address);
             } catch (NullPointerException ignored) {}
@@ -439,41 +408,18 @@ public abstract class MapBaseActivity extends FragmentActivity {
         set.play(scaleOutX).with(scaleOutY);
         set.play(scaleInX).with(scaleInY).after(scaleOutX);
         set.setInterpolator(new OvershootInterpolator(2));
-
         mFABPollutants.setIconToggleAnimatorSet(set);
 
-//        FAB margin
-        final int margin = getPx(40);
-        FABDownAnimation = new Animation() {
-
-            @Override
-            protected void applyTransformation(float interpolatedTime, Transformation t) {
-                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mFABPollutants.getLayoutParams();
-                params.bottomMargin = (int)(margin - margin*interpolatedTime);
-                mFABPollutants.setLayoutParams(params);
-            }
-        };
-        FABDownAnimation.setDuration(100); // in ms
-
-        FABUpAnimation = new Animation() {
-
-            @Override
-            protected void applyTransformation(float interpolatedTime, Transformation t) {
-                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mFABPollutants.getLayoutParams();
-                params.bottomMargin = (int)(margin * interpolatedTime);
-                mFABPollutants.setLayoutParams(params);
-            }
-        };
-        FABUpAnimation.setDuration(100); // in ms
-
 
     }
 
-    public void animateFABDown() {
-        mFABPollutants.startAnimation(FABDownAnimation);
+    public void showFab() {
+        mFABPollutants.showMenuButton(true);
+        mActionBarFragment.hideMenu();
     }
 
-    public void animateFABUp() {
-        mFABPollutants.startAnimation(FABUpAnimation);
+    public void hideFab() {
+        mFABPollutants.hideMenuButton(true);
+        mActionBarFragment.showMenu();
     }
 }

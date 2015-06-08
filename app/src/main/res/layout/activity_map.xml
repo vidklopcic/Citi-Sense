@@ -11,6 +11,7 @@
         android:layout_height="match_parent"
         android:gravity="bottom"
         sothree:umanoShadowHeight="5dp"
+        sothree:umanoPanelHeight="@dimen/pullup_panel_height"
         sothree:umanoFadeColor="@color/transparent"
         sothree:umanoOverlay="false"
         sothree:umanoInitialState="hidden">
@@ -28,6 +29,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="65dp"
                 tools:layout="@layout/search_fragment" />
+            <fragment
+                android:name="eu.citi_sense.vic.citi_sense.support_classes.map_activity.ActionBarFragment"
+                android:id="@+id/map_action_bar_fragment"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_marginTop="-55dp"
+                tools:layout="@layout/map_action_bar_fragment"/>
         </RelativeLayout>
 
         <RelativeLayout
@@ -36,17 +44,7 @@
             android:layout_height="match_parent"
             android:background="@color/pullup_bg"
             android:orientation="vertical">
-            <TextView
-                android:id="@+id/pullup_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/your_location"
-                android:textSize="@dimen/title_size"
-                android:layout_marginLeft="30dp"
-                android:layout_marginStart="30dp"
-                android:layout_marginTop="10dp"
-                android:textColor="#000"
-                />
+            <!-- TO-DO PullUpPaneLayout-->
         </RelativeLayout>
     </com.sothree.slidinguppanel.SlidingUpPanelLayout>
     <com.github.clans.fab.FloatingActionMenu

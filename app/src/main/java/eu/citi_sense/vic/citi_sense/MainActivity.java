@@ -1,14 +1,11 @@
 package eu.citi_sense.vic.citi_sense;
 
 import android.location.Location;
-import android.view.View;
 
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
-
-import java.util.Objects;
 
 public class MainActivity extends MapBaseActivity {
     @Override
@@ -24,10 +21,6 @@ public class MainActivity extends MapBaseActivity {
         removePointOfInterest();
         if (mSlidingUpPane.getPanelState() != SlidingUpPanelLayout.PanelState.HIDDEN) {
             mSlidingUpPane.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
-            if (mSlidingUpPane.getPanelState() != SlidingUpPanelLayout.PanelState.EXPANDED) {
-                animateFABDown();
-            }
-            alreadyAnimatedFAB = true;
         }
     }
 
@@ -40,12 +33,12 @@ public class MainActivity extends MapBaseActivity {
     protected void mapLongClicked(LatLng latLng) {
         if (mSlidingUpPane.getPanelState() == SlidingUpPanelLayout.PanelState.HIDDEN) {
             mSlidingUpPane.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-            animateFABUp();
+            hideFab();
             alreadyAnimatedFAB = true;
         }
         mGVar.mMap.moveCameraWithLocation = false;
         Marker marker = setPointOfInterest(latLng);
-        setPullupTitle(marker);
+        setActionBarTitle(marker);
         centerMap(latLng);
     }
 
@@ -55,13 +48,13 @@ public class MainActivity extends MapBaseActivity {
             removePointOfInterest();
             mGVar.mMap.moveCameraWithLocation = true;
         }
-        mPullupTitle.setText(marker.getTitle());
+        mActionBarFragment.setTitle(marker.getTitle(), marker.getPosition());
         if (marker.getTitle() == null) {
-            setPullupTitle(marker);
+            setActionBarTitle(marker);
         }
         if (mSlidingUpPane.getPanelState() == SlidingUpPanelLayout.PanelState.HIDDEN) {
             mSlidingUpPane.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-            animateFABUp();
+            hideFab();
             alreadyAnimatedFAB = true;
         }
     }

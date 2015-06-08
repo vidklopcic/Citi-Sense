@@ -30,4 +30,6 @@
     <color name="text_color_light">#aaaaaa</color>
     <color name="dark_blue_grey">#293238</color>
     <color name="very_light_gray">#C6C6C6</color>
+    <color name="maps_blue">#4084F6</color>
+    <color name="transparent_pressed">#70ffffff</color>
 </resources>

@@ -78,4 +78,12 @@ public class SearchFragment extends Fragment{
 
         }
     }
+
+    public void hideSearch() {
+        mFragmentView.setVisibility(View.GONE);
+    }
+
+    public void showSearch() {
+        mFragmentView.setVisibility(View.VISIBLE);
+    }
 }
