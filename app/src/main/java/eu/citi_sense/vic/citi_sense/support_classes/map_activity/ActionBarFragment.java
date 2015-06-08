@@ -51,8 +51,9 @@ public class ActionBarFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (isFavorite) {
-                    currentFavoritePlace.delete();
                     mFavoritePlaces.remove(currentFavoritePlace);
+                    currentFavoritePlace.delete();
+                    isFavorite = false;
                     mFavorite.setImageDrawable(getActivity().getResources().getDrawable(R.drawable.ic_star_outline));
                 } else if (title != null) {
                     if (!title.equals("Somewhere") || !title.equals("...")) {
