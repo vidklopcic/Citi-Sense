@@ -21,6 +21,8 @@ public class MainActivity extends MapBaseActivity {
         removePointOfInterest();
         if (mSlidingUpPane.getPanelState() != SlidingUpPanelLayout.PanelState.HIDDEN) {
             mSlidingUpPane.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+            showFab();
+            alreadyAnimatedFAB = true;
         }
     }
 

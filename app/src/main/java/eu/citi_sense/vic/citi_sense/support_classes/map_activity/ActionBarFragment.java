@@ -1,8 +1,8 @@
 package eu.citi_sense.vic.citi_sense.support_classes.map_activity;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,27 +25,43 @@ public class ActionBarFragment extends Fragment {
     public ImageView mFavorite;
     private ArrayList<FavoritePlace> mFavoritePlaces;
     private Integer margin;
+    private MapBaseActivity mActivity;
     private LatLng location;
     private boolean isFavorite;
     private FavoritePlace currentFavoritePlace;
     private String title;
     private Animation mHideActionMenuAnimation;
     private Animation mShowActionMenuAnimation;
+    private ImageView mMenuButton;
+    private MenuClickInterface mInterface;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        margin = ((MapBaseActivity) getActivity()).getPx(55);
+        margin = mActivity.getPx(55);
         FavoritePlace mFavoritePlace = new FavoritePlace();
         mFavoritePlaces = mFavoritePlace.getFavoritePlaces();
         mFragmentView = (RelativeLayout) inflater.inflate(R.layout.map_action_bar_fragment, container, false);
         mActionBarTitle = (TextView) mFragmentView.findViewById(R.id.map_action_bar_title);
         mFavorite = (ImageView) mFragmentView.findViewById(R.id.add_to_favorites);
+        mMenuButton = (ImageView) mFragmentView.findViewById(R.id.map_action_bar_menu_button);
         createCustomAnimations();
         setOnClickListeners();
         return mFragmentView;
     }
 
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            mInterface = (MenuClickInterface) activity;
+            mActivity = (MapBaseActivity) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement MenuClickInterface");
+        }
+    }
+    
     private void setOnClickListeners() {
         mFavorite.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,6 +82,12 @@ public class ActionBarFragment extends Fragment {
                         isFavorite = true;
                     }
                 }
+            }
+        });
+        mMenuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mInterface.menuClicked();
             }
         });
     }
@@ -122,8 +144,7 @@ public class ActionBarFragment extends Fragment {
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                ((MapBaseActivity) getActivity()).mSearchFragment.showSearch();
-
+                mActivity.mSearchFragment.showSearch();
             }
 
             @Override
@@ -148,7 +169,7 @@ public class ActionBarFragment extends Fragment {
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                ((MapBaseActivity) getActivity()).mSearchFragment.hideSearch();
+                mActivity.mSearchFragment.hideSearch();
 
             }
 
@@ -171,4 +192,7 @@ public class ActionBarFragment extends Fragment {
         }
     }
 
+    public interface MenuClickInterface {
+        void menuClicked();
+    }
 }

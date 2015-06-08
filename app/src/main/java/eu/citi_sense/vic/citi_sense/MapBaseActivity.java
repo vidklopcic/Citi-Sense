@@ -49,7 +49,7 @@ import eu.citi_sense.vic.citi_sense.support_classes.map_activity.Places;
 import eu.citi_sense.vic.citi_sense.support_classes.sliding_menu.SlidingMenuListeners;
 import eu.citi_sense.vic.citi_sense.support_classes.sliding_menu.SlidingMenuHandler;
 
-public abstract class MapBaseActivity extends FragmentActivity {
+public abstract class MapBaseActivity extends FragmentActivity implements ActionBarFragment.MenuClickInterface {
     private static final int REQ_CODE_SPEECH_INPUT = 100;
     public GoogleMap mMap; // Might be null if Google Play services APK is not available.
     public GlobalVariables mGVar;
@@ -100,6 +100,9 @@ public abstract class MapBaseActivity extends FragmentActivity {
                 SlidingMenuListeners.MAP_ACTIVITY, mSlidingMenu, this);
     }
 
+    public void menuClicked() {
+        mSlidingMenu.menu.showMenu();
+    }
     protected void setupGui() {
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();

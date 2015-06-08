@@ -13,7 +13,7 @@
         sothree:umanoShadowHeight="5dp"
         sothree:umanoPanelHeight="@dimen/pullup_panel_height"
         sothree:umanoFadeColor="@color/transparent"
-        sothree:umanoOverlay="false"
+        sothree:umanoOverlay="true"
         sothree:umanoInitialState="hidden">
         <RelativeLayout
             android:layout_width="match_parent"

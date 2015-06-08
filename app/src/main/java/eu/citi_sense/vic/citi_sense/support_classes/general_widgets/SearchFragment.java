@@ -18,25 +18,48 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import eu.citi_sense.vic.citi_sense.R;
+import eu.citi_sense.vic.citi_sense.support_classes.map_activity.ActionBarFragment;
 
 public class SearchFragment extends Fragment{
     private static final int REQ_CODE_SPEECH_INPUT = 100;
-    AutoCompleteTextView mSearchField;
-    RelativeLayout mFragmentView;
-    ImageView mMicButton;
+    private AutoCompleteTextView mSearchField;
+    private RelativeLayout mFragmentView;
+    private ImageView mMicButton;
+    private ImageView mMenuButton;
+    private ActionBarFragment.MenuClickInterface mInterface;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mFragmentView = (RelativeLayout) inflater.inflate(R.layout.search_fragment, container, false);
         mSearchField = (AutoCompleteTextView) mFragmentView.findViewById(R.id.search_field);
         mMicButton = (ImageView) mFragmentView.findViewById(R.id.mic_btn);
+        mMenuButton = (ImageView) mFragmentView.findViewById(R.id.search_menu_button);
+        mMenuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mInterface.menuClicked();
+            }
+        });
         mMicButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 promptSpeechInput();
             }
         });
+
         return mFragmentView;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            mInterface = (ActionBarFragment.MenuClickInterface) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement MenuClickInterface");
+        }
     }
 
     /**
