@@ -29,7 +29,7 @@ public class SearchFragment extends Fragment{
     private ImageView mMicButton;
     private ImageView mMenuButton;
     private ActionBarFragment.MenuClickInterface mInterface;
-
+    private boolean mMenuClickInterfaceIsImplemented;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -37,12 +37,16 @@ public class SearchFragment extends Fragment{
         mSearchField = (AutoCompleteTextView) mFragmentView.findViewById(R.id.search_field);
         mMicButton = (ImageView) mFragmentView.findViewById(R.id.mic_btn);
         mMenuButton = (ImageView) mFragmentView.findViewById(R.id.search_menu_button);
-        mMenuButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mInterface.menuClicked();
-            }
-        });
+        if(mMenuClickInterfaceIsImplemented) {
+            mMenuButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mInterface.menuClicked();
+                }
+            });
+        } else {
+            mMenuButton.setVisibility(View.GONE);
+        }
         mMicButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -58,9 +62,9 @@ public class SearchFragment extends Fragment{
         super.onAttach(activity);
         try {
             mInterface = (ActionBarFragment.MenuClickInterface) activity;
+            mMenuClickInterfaceIsImplemented = true;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement MenuClickInterface");
+            mMenuClickInterfaceIsImplemented = false;
         }
     }
 

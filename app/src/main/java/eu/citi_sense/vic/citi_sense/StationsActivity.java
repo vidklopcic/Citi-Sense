@@ -26,6 +26,7 @@ import java.util.Locale;
 import eu.citi_sense.vic.citi_sense.global.Databases.Station;
 import eu.citi_sense.vic.citi_sense.global.GlobalVariables;
 import eu.citi_sense.vic.citi_sense.support_classes.Charts;
+import eu.citi_sense.vic.citi_sense.support_classes.map_activity.ActionBarFragment;
 import eu.citi_sense.vic.citi_sense.support_classes.sliding_menu.SlidingMenuHandler;
 import eu.citi_sense.vic.citi_sense.support_classes.sliding_menu.SlidingMenuListeners;
 
@@ -87,5 +88,4 @@ public class StationsActivity extends Activity {
     public void menuBtnClicked(View view) {
         mSlidingMenu.menu.showMenu(true);
     }
-
 }

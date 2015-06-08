@@ -18,7 +18,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.Transformation;
-import android.view.animation.TranslateAnimation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -50,8 +49,8 @@ import eu.citi_sense.vic.citi_sense.support_classes.general_widgets.SearchFragme
 import eu.citi_sense.vic.citi_sense.support_classes.map_activity.ActionBarFragment;
 import eu.citi_sense.vic.citi_sense.support_classes.map_activity.ClusterStation;
 import eu.citi_sense.vic.citi_sense.support_classes.map_activity.Places;
-import eu.citi_sense.vic.citi_sense.support_classes.sliding_menu.SlidingMenuListeners;
 import eu.citi_sense.vic.citi_sense.support_classes.sliding_menu.SlidingMenuHandler;
+import eu.citi_sense.vic.citi_sense.support_classes.sliding_menu.SlidingMenuListeners;
 
 public abstract class MapBaseActivity extends FragmentActivity implements ActionBarFragment.MenuClickInterface {
 
