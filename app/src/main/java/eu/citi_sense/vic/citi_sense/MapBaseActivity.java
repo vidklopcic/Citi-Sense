@@ -6,6 +6,7 @@ import android.animation.ObjectAnimator;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.location.Location;
 import android.location.LocationListener;
@@ -14,6 +15,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.View;
@@ -36,10 +38,13 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.maps.android.clustering.ClusterManager;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
@@ -47,6 +52,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
 
+import eu.citi_sense.vic.citi_sense.global.Databases.Station;
 import eu.citi_sense.vic.citi_sense.global.GlobalVariables;
 import eu.citi_sense.vic.citi_sense.global.Pollutants;
 import eu.citi_sense.vic.citi_sense.support_classes.Charts;
@@ -186,9 +192,9 @@ public abstract class MapBaseActivity extends FragmentActivity {
             return false;
         }
     }
-    public void setPointOfInterest(LatLng latLng) {
+    public Marker setPointOfInterest(LatLng latLng) {
         mPointOfInterestMarker = addMarker(latLng, "...", null);
-        mPullupTitle.setText("...");
+        return mPointOfInterestMarker;
     }
     private void setUpListeners() {
         GoogleMap.OnMapLongClickListener onMapLongClickListener = new GoogleMap.OnMapLongClickListener() {
@@ -254,6 +260,7 @@ public abstract class MapBaseActivity extends FragmentActivity {
             @Override
             public void onCameraChange(CameraPosition cameraPosition) {
                 cameraChanged(cameraPosition);
+                mClusterManager.onCameraChange(cameraPosition);
             }
         };
         mMap.setOnCameraChangeListener(onCameraChangeListener);
@@ -265,6 +272,7 @@ public abstract class MapBaseActivity extends FragmentActivity {
                 mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
                 isMovingAuto = true;
                 markerClicked(marker);
+                mClusterManager.onMarkerClick(marker);
                 return true;
             }
         };
@@ -295,6 +303,17 @@ public abstract class MapBaseActivity extends FragmentActivity {
         mMap.setBuildingsEnabled(true);
         mMap.setMyLocationEnabled(true);
 
+        Double lat = 46.1388386;
+        Double lng = 14.6026128;
+        PolygonOptions options= new PolygonOptions().add(
+                new LatLng(lat+0.005, lng+0.005),
+                new LatLng(lat+0.005, lng-0.005),
+                new LatLng(lat-0.005, lng-0.005),
+                new LatLng(lat-0.005, lng+0.005),
+                new LatLng(lat+0.005, lng+0.005)
+        );
+        Polygon polygon = mMap.addPolygon(options);
+        polygon.setFillColor(getResources().getColor(R.color.dark_blue_grey));
         if (mGVar.mMap.cameraPosition != null) {
             mMap.moveCamera(CameraUpdateFactory.newCameraPosition(mGVar.mMap.cameraPosition));
         }
@@ -302,20 +321,19 @@ public abstract class MapBaseActivity extends FragmentActivity {
 
     private void setUpClusterer() {
         mClusterManager = new ClusterManager<>(this, mMap);
-        updateStations();
     }
 
-    private void updateStations() {
+    private void updateStations(ArrayList<Station> stations) {
         mClusterManager.clearItems();
-        if (mGVar.mMap.stations != null) {
-           for(Map.Entry<String, double[]> station: mGVar.mMap.stations.entrySet()) {
-               double[] latLng = station.getValue();
-               mClusterManager.addItem(new ClusterStation(latLng[0], latLng[1], station.getKey()));
-           }
-        }
+        for(Station station : stations) {
+            LatLng latLng = station.getPosition();
+            mClusterManager.addItem(new ClusterStation(latLng, station.owner, station));
+            Log.d("asdfg", station.owner);
+       }
     }
 
     public Marker addMarker(LatLng position, String title, String id) {
+        Log.d("asdfg", position.toString());
         MarkerOptions markerOptions = new MarkerOptions()
                 .position(position)
                 .title(title)
@@ -323,15 +341,24 @@ public abstract class MapBaseActivity extends FragmentActivity {
         return mMap.addMarker(markerOptions);
     }
 
-    public void setPullupTitle(LatLng position) {
-        new setPullupTitle().execute(position);
+    public void setPullupTitle(Marker marker) {
+        mPullupTitle.setText("...");
+        new setPullupTitle(marker).execute();
     }
 
-    class setPullupTitle extends AsyncTask<LatLng, Void, String> {
+    class setPullupTitle extends AsyncTask<Void, Void, String> {
+        Marker mMarker;
+        LatLng position;
+
+        public setPullupTitle(Marker marker) {
+            position = marker.getPosition();
+            mMarker = marker;
+        }
+
         @Override
-        protected String doInBackground(LatLng... params) {
-            double lat = params[0].latitude;
-            double lon = params[0].longitude;
+        protected String doInBackground(Void... params) {
+            double lat = position.latitude;
+            double lon = position.longitude;
             return mPlaces.getAddress(lat, lon);
         }
 
@@ -340,6 +367,7 @@ public abstract class MapBaseActivity extends FragmentActivity {
             try {
                 mPullupTitle.setText(address);
                 mPointOfInterestMarker.setTitle(address);
+                mMarker.setTitle(address);
             } catch (NullPointerException ignored) {}
         }
     }
@@ -381,6 +409,7 @@ public abstract class MapBaseActivity extends FragmentActivity {
             mFABPollutants.addMenuButton(fab);
         }
         createCustomAnimation();
+        updateStations(mGVar.Pollutant.stations);
     }
 
     private void createCustomAnimation() {

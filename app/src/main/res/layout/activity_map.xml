@@ -10,7 +10,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="bottom"
-        sothree:umanoPanelHeight="@dimen/pullup_panel_height"
         sothree:umanoShadowHeight="5dp"
         sothree:umanoFadeColor="@color/transparent"
         sothree:umanoOverlay="false"
@@ -24,7 +23,7 @@
                 android:layout_height="match_parent" android:id="@+id/map" tools:context=".MapActivity"
                 android:name="com.google.android.gms.maps.SupportMapFragment" />
             <fragment
-                android:name="eu.citi_sense.vic.citi_sense.support_classes.fragments.SearchFragment"
+                android:name="eu.citi_sense.vic.citi_sense.support_classes.general_widgets.SearchFragment"
                 android:id="@+id/map_search_fragment"
                 android:layout_width="match_parent"
                 android:layout_height="65dp"

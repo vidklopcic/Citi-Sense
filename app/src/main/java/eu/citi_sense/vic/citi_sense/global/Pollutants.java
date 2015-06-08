@@ -1,13 +1,14 @@
 package eu.citi_sense.vic.citi_sense.global;
 import android.animation.ArgbEvaluator;
 import android.content.Context;
-import android.graphics.Color;
+import android.util.Log;
 
-import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import eu.citi_sense.vic.citi_sense.R;
+import eu.citi_sense.vic.citi_sense.global.Databases.Measurement;
+import eu.citi_sense.vic.citi_sense.global.Databases.Station;
 
 public class Pollutants {
     public int nOfPollutants = 8;
@@ -19,7 +20,31 @@ public class Pollutants {
     public static final int PM10 = 6;
     public static final int PM2_5 = 7;
     public static final int SO2 = 8;
-    
+    public static final HashMap<Integer, String> pollutantNames;
+    public static final HashMap<String, Integer> pollutantIndexes;
+    public ArrayList<Station> stations;
+    static {
+        pollutantNames = new HashMap<>();
+        pollutantNames.put(CO, "CO");
+        pollutantNames.put(CO2, "CO2");
+        pollutantNames.put(H2O, "H2O");
+        pollutantNames.put(NO, "NO");
+        pollutantNames.put(O3, "O3");
+        pollutantNames.put(PM10, "PM10)");
+        pollutantNames.put(PM2_5, "PM2_5");
+        pollutantNames.put(SO2, "SO2");
+
+        pollutantIndexes = new HashMap<>();
+        pollutantIndexes.put("CO", CO);
+        pollutantIndexes.put("CO2", CO2);
+        pollutantIndexes.put("H2O", H2O);
+        pollutantIndexes.put("NO", NO);
+        pollutantIndexes.put("O3", O3);
+        pollutantIndexes.put("PM10)", PM10);
+        pollutantIndexes.put("PM2_5", PM2_5);
+        pollutantIndexes.put("SO2", SO2);
+    }
+
     public Integer icon;
     public Integer description;
     public Integer aqi;
@@ -62,6 +87,10 @@ public class Pollutants {
         pollutionCallback = null;
     }
 
+    public void setPollutant(String pollutant) {
+        setPollutant(pollutantIndexes.get(pollutant));
+    }
+
     public void setPollutant(int pollutant) {
         switch (pollutant) {
             case 1:
@@ -89,6 +118,10 @@ public class Pollutants {
                 setSO2();
                 break;
         }
+    }
+
+    public Pollutants getPollutant(String pollutant) {
+        return getPollutant(pollutantIndexes.get(pollutant));
     }
 
     public Pollutants getPollutant(int pollutant) {
@@ -128,6 +161,9 @@ public class Pollutants {
         description = R.string.CO_description;
         aqi = pollutantsAqi.get(CO);
         current = 1;
+        stations = new ArrayList<>(
+                Station.find(Station.class, "CO = ?", "1")
+        );
         afterChange();
     }
     private void setCO2() {
@@ -135,6 +171,9 @@ public class Pollutants {
         description = R.string.CO2_description;
         aqi = pollutantsAqi.get(CO2);
         current = 2;
+        stations = new ArrayList<>(
+                Station.find(Station.class, "CO2 = ?", "1")
+        );
         afterChange();
     }
     private void setH2O() {
@@ -142,6 +181,9 @@ public class Pollutants {
         description = R.string.H2O_description;
         aqi = pollutantsAqi.get(H2O);
         current = 3;
+        stations = new ArrayList<>(
+                Station.find(Station.class, "H2O = ?", "1")
+        );
         afterChange();
     }
     private void setNO() {
@@ -149,6 +191,9 @@ public class Pollutants {
         description = R.string.NO_description;
         aqi = pollutantsAqi.get(NO);
         current = 4;
+        stations = new ArrayList<>(
+                Station.find(Station.class, "NO = ?", "1")
+        );
         afterChange();
     }
     private void setO3() {
@@ -156,6 +201,9 @@ public class Pollutants {
         description = R.string.O3_description;
         aqi = pollutantsAqi.get(O3);
         current = 5;
+        stations = new ArrayList<>(
+                Station.find(Station.class, "O3 = ?", "1")
+        );
         afterChange();
     }
     private void setPM10() {
@@ -163,6 +211,9 @@ public class Pollutants {
         description = R.string.PM10_description;
         aqi = pollutantsAqi.get(PM10);
         current = 6;
+        stations = new ArrayList<>(
+                Station.find(Station.class, "PM10 = ?", "1")
+        );
         afterChange();
     }
     private void setPM2_5() {
@@ -170,6 +221,9 @@ public class Pollutants {
         description = R.string.PM2_5_description;
         aqi = pollutantsAqi.get(PM2_5);
         current = 7;
+        stations = new ArrayList<>(
+                Station.find(Station.class, "PM25 = ?", "1")
+        );
         afterChange();
     }
     private void setSO2() {
@@ -177,6 +231,9 @@ public class Pollutants {
         description = R.string.SO2_description;
         aqi = pollutantsAqi.get(SO2);
         current = 8;
+        stations = new ArrayList<>(
+                Station.find(Station.class, "SO2 = ?", "1")
+        );
         afterChange();
     }
 
@@ -243,10 +300,26 @@ public class Pollutants {
         return (int) new ArgbEvaluator().evaluate(proportion, a, b);
     }
 
+    public void updatePollutant(String pollutant, int aqi) {
+        updatePollutant(pollutantIndexes.get(pollutant), aqi);
+    }
+
     public void updatePollutant(int pollutant, int aqi) {
         pollutantsAqi.put(pollutant, aqi);
         if (pollutionCallback != null) {
             pollutionCallback.pollutantUpdated(pollutant);
         }
+    }
+
+    public HashMap<Station, ArrayList<Measurement>> getAllMeasurements(Integer startTime, Integer endTime) {
+        HashMap<Station, ArrayList<Measurement>> measurements = new HashMap<>();
+        for(Station station : stations) {
+            measurements.put(station, station.getMeasurements(startTime, endTime));
+        }
+        return measurements;
+    }
+
+    public ArrayList<Measurement> getMeasurements(Station station, Integer startTime, Integer endTime) {
+        return station.getMeasurements(startTime, endTime);
     }
 }

@@ -8,6 +8,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import java.util.Objects;
+
 public class MainActivity extends MapBaseActivity {
     @Override
     protected void cameraChanged(CameraPosition cameraPosition) {
@@ -42,18 +44,21 @@ public class MainActivity extends MapBaseActivity {
             alreadyAnimatedFAB = true;
         }
         mGVar.mMap.moveCameraWithLocation = false;
-        setPointOfInterest(latLng);
-        setPullupTitle(latLng);
+        Marker marker = setPointOfInterest(latLng);
+        setPullupTitle(marker);
         centerMap(latLng);
     }
 
     @Override
     protected void markerClicked(Marker marker) {
-        if (marker.getSnippet() != null) {
+        if (marker.getSnippet() != null && marker.getSnippet().equals("your-location")) {
             removePointOfInterest();
             mGVar.mMap.moveCameraWithLocation = true;
         }
         mPullupTitle.setText(marker.getTitle());
+        if (marker.getTitle() == null) {
+            setPullupTitle(marker);
+        }
         if (mSlidingUpPane.getPanelState() == SlidingUpPanelLayout.PanelState.HIDDEN) {
             mSlidingUpPane.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
             animateFABUp();

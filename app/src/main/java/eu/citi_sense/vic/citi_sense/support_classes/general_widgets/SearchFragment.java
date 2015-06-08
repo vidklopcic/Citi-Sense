@@ -1,4 +1,4 @@
-package eu.citi_sense.vic.citi_sense.support_classes.fragments;
+package eu.citi_sense.vic.citi_sense.support_classes.general_widgets;
 
 import android.app.Activity;
 import android.app.Fragment;

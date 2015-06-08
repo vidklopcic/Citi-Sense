@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
             <fragment
-                android:name="eu.citi_sense.vic.citi_sense.support_classes.fragments.SearchFragment"
+                android:name="eu.citi_sense.vic.citi_sense.support_classes.general_widgets.SearchFragment"
                 android:id="@+id/stations_search"
                 android:layout_width="match_parent"
                 android:layout_height="65dp"

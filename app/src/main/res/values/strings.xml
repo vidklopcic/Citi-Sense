@@ -16,7 +16,7 @@
     <string name="your_location">Your location</string>
     <string name="temperature">temperature</string>
     <string name="humidity">humidity</string>
-    <string name="aqi">AQI</string>
+    <string name="aqi">current AQI</string>
     <string name="analysis">Analysis</string>
     <string name="maps">Map</string>
     <string name="stations">Stations</string>
