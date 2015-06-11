@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.LinearLayout;
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -27,6 +28,9 @@ public class AnalysisActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_analysis);
+        getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
+        );
         mGVar = (GlobalVariables) getApplicationContext();
         mSlidingMenu = new SlidingMenuHandler(this);
         LineData data = mGVar.data.getAQIData(24, 5);

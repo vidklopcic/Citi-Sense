@@ -3,6 +3,7 @@ package eu.citi_sense.vic.citi_sense.support_classes.map_activity;
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import eu.citi_sense.vic.citi_sense.MapBaseActivity;
 import eu.citi_sense.vic.citi_sense.R;
 import eu.citi_sense.vic.citi_sense.global.Databases.FavoritePlace;
+import eu.citi_sense.vic.citi_sense.global.MapVariables;
 
 
 public class ActionBarFragment extends Fragment {
@@ -24,7 +26,6 @@ public class ActionBarFragment extends Fragment {
     public TextView mActionBarTitle;
     public ImageView mFavorite;
     private ArrayList<FavoritePlace> mFavoritePlaces;
-    private Integer margin;
     private MapBaseActivity mActivity;
     private LatLng location;
     private boolean isFavorite;
@@ -38,7 +39,6 @@ public class ActionBarFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        margin = mActivity.getPx(56);
         FavoritePlace mFavoritePlace = new FavoritePlace();
         mFavoritePlaces = mFavoritePlace.getFavoritePlaces();
         mFragmentView = (RelativeLayout) inflater.inflate(R.layout.map_action_bar_fragment, container, false);
@@ -46,6 +46,7 @@ public class ActionBarFragment extends Fragment {
         mFavorite = (ImageView) mFragmentView.findViewById(R.id.add_to_favorites);
         mMenuButton = (ImageView) mFragmentView.findViewById(R.id.map_action_bar_menu_button);
         setOnClickListeners();
+        createCustomAnimations();
         return mFragmentView;
     }
 
@@ -59,7 +60,6 @@ public class ActionBarFragment extends Fragment {
             throw new ClassCastException(activity.toString()
                     + " must implement MenuClickInterface");
         }
-        createCustomAnimations();
     }
     
     private void setOnClickListeners() {
@@ -132,7 +132,7 @@ public class ActionBarFragment extends Fragment {
             @Override
             protected void applyTransformation(float interpolatedTime, Transformation t) {
                 RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mFragmentView.getLayoutParams();
-                params.topMargin = (int)(-margin*interpolatedTime);
+                params.topMargin = (int)(-mFragmentView.getHeight()*interpolatedTime);
                 mFragmentView.setLayoutParams(params);
             }
         };
@@ -151,13 +151,13 @@ public class ActionBarFragment extends Fragment {
             public void onAnimationRepeat(Animation animation) {
             }
         });
-        mHideActionMenuAnimation.setDuration(mActivity.animationDuration); // in ms
+        mHideActionMenuAnimation.setDuration(MapVariables.animationDuration); // in ms
 
         mShowActionMenuAnimation = new Animation() {
             @Override
             protected void applyTransformation(float interpolatedTime, Transformation t) {
                 RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mFragmentView.getLayoutParams();
-                params.topMargin = (int)(margin*interpolatedTime-margin);
+                params.topMargin = (int)(mFragmentView.getHeight()*interpolatedTime-mFragmentView.getHeight());
                 mFragmentView.setLayoutParams(params);
             }
         };
@@ -177,7 +177,7 @@ public class ActionBarFragment extends Fragment {
             public void onAnimationRepeat(Animation animation) {
             }
         });
-        mShowActionMenuAnimation.setDuration(100); // in ms
+        mShowActionMenuAnimation.setDuration(MapVariables.animationDuration); // in ms
     }
 
     public void hideMenu() {

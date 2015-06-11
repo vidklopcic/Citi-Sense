@@ -30,7 +30,7 @@ public class Pollutants {
         pollutantNames.put(H2O, "H2O");
         pollutantNames.put(NO, "NO");
         pollutantNames.put(O3, "O3");
-        pollutantNames.put(PM10, "PM10)");
+        pollutantNames.put(PM10, "PM10");
         pollutantNames.put(PM2_5, "PM2_5");
         pollutantNames.put(SO2, "SO2");
 
@@ -40,7 +40,7 @@ public class Pollutants {
         pollutantIndexes.put("H2O", H2O);
         pollutantIndexes.put("NO", NO);
         pollutantIndexes.put("O3", O3);
-        pollutantIndexes.put("PM10)", PM10);
+        pollutantIndexes.put("PM10", PM10);
         pollutantIndexes.put("PM2_5", PM2_5);
         pollutantIndexes.put("SO2", SO2);
     }
@@ -66,7 +66,7 @@ public class Pollutants {
         pollutantsAqi.put(H2O, 0);
         pollutantsAqi.put(NO, 31);
         pollutantsAqi.put(O3, 20);
-        pollutantsAqi.put(PM10, 200);
+        pollutantsAqi.put(PM10, 105);
         pollutantsAqi.put(PM2_5, 150);
         pollutantsAqi.put(SO2, 75);
     }

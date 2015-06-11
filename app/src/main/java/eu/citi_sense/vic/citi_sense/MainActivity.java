@@ -46,6 +46,7 @@ public class MainActivity extends MapBaseActivity {
 
     @Override
     protected void markerClicked(Marker marker) {
+        mGVar.mMap.moveCameraWithLocation = false;
         if (marker.getSnippet() != null && marker.getSnippet().equals("your-location")) {
             removePointOfInterest();
             mGVar.mMap.moveCameraWithLocation = true;

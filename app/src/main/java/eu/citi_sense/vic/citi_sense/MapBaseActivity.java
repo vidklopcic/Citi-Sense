@@ -15,6 +15,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.OvershootInterpolator;
@@ -36,6 +37,9 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.TileOverlay;
+import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.android.gms.maps.model.TileProvider;
 import com.google.maps.android.clustering.ClusterManager;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
@@ -49,12 +53,14 @@ import eu.citi_sense.vic.citi_sense.support_classes.Charts;
 import eu.citi_sense.vic.citi_sense.support_classes.general_widgets.SearchFragment;
 import eu.citi_sense.vic.citi_sense.support_classes.map_activity.ActionBarFragment;
 import eu.citi_sense.vic.citi_sense.support_classes.map_activity.ClusterStation;
+import eu.citi_sense.vic.citi_sense.support_classes.map_activity.LocalTileProvider;
 import eu.citi_sense.vic.citi_sense.support_classes.map_activity.Places;
 import eu.citi_sense.vic.citi_sense.support_classes.sliding_menu.SlidingMenuHandler;
 import eu.citi_sense.vic.citi_sense.support_classes.sliding_menu.SlidingMenuListeners;
 
 public abstract class MapBaseActivity extends FragmentActivity implements ActionBarFragment.MenuClickInterface {
-
+    public TileOverlay mTileOverlay;
+    public LocalTileProvider mTileProvider;
     public GoogleMap mMap; // Might be null if Google Play services APK is not available.
     public GlobalVariables mGVar;
     public Marker mPointOfInterestMarker = null;
@@ -81,6 +87,9 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+        getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
+        );
         mGVar = (GlobalVariables) getApplicationContext();
         animationDuration = MapVariables.animationDuration;
         mapOffset = Float.valueOf(getResources().getDimension(R.dimen.pullup_panel_height)/2).intValue();
@@ -110,6 +119,7 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
         LinearLayout stationsButton = (LinearLayout) findViewById(R.id.sliding_menu_stations);
         new SlidingMenuListeners(mapButton, analysisButton, stationsButton,
                 SlidingMenuListeners.MAP_ACTIVITY, mSlidingMenu, this);
+        mActionBarFragment.hideMenu();
     }
 
     public void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
@@ -215,8 +225,10 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
 
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         Location lastLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()), 14));
+        if (lastLocation != null) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                    new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()), 14));
+        }
         LocationListener locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
                 LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
@@ -301,7 +313,8 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
     private void setUpMap() {
         mMap.setBuildingsEnabled(true);
         mMap.setMyLocationEnabled(true);
-
+        mTileProvider = new LocalTileProvider(getResources().getAssets());
+        mTileOverlay = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mTileProvider));
         if (mGVar.mMap.cameraPosition != null) {
             mMap.moveCamera(CameraUpdateFactory.newCameraPosition(mGVar.mMap.cameraPosition));
         }
@@ -314,6 +327,7 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
     private void updateStations(ArrayList<Station> stations) {
         mClusterManager.clearItems();
         for(Station station : stations) {
+            Log.d("asdfg", "Station added");
             LatLng latLng = station.getPosition();
             mClusterManager.addItem(new ClusterStation(latLng, station.owner, station));
             Log.d("asdfg", station.owner);
@@ -369,6 +383,9 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
         menu_icon.setImageResource(mGVar.Pollutant.icon);
         mFABPollutants.setMenuButtonColorNormal(mGVar.Pollutant.color);
         mFABPollutants.setMenuButtonColorPressed(mGVar.Pollutant.color_pressed);
+        mTileProvider.setCurrentPollutant(Pollutants.pollutantNames.get(mGVar.Pollutant.current));
+        mTileOverlay.remove();
+        mTileOverlay = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mTileProvider));
 
         for(int i=1; i<=mGVar.Pollutant.nOfPollutants; i++) {
             FloatingActionButton fab = new FloatingActionButton(this);
@@ -380,7 +397,6 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
                     getApplicationContext(), R.anim.abc_shrink_fade_out_from_bottom);
             fab.setHideAnimation(animation);
             fab.setTag(i);
-//            fab.setBackgroundColor(p.color);
             fab.setColorNormal(p.color);
             fab.setOnClickListener(new FloatingActionButton.OnClickListener() {
                 @Override
@@ -390,6 +406,9 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
                     mGVar.Pollutant.setPollutant(pollutant);
                     mFABPollutants.setMenuButtonColorNormal(mGVar.Pollutant.color);
                     mFABPollutants.setMenuButtonColorPressed(mGVar.Pollutant.color_pressed);
+                    mTileProvider.setCurrentPollutant(Pollutants.pollutantNames.get(mGVar.Pollutant.current));
+                    mTileOverlay.remove();
+                    mTileOverlay = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mTileProvider));
                     mFABPollutants.close(true);
                 }
             });
