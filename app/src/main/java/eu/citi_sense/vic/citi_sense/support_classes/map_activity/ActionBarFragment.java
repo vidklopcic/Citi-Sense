@@ -39,6 +39,12 @@ public class ActionBarFragment extends Fragment {
     private boolean mFavoritesStarIsHidden = false;
     private ModeSwitchedListener mModeSwitchedListener;
     private long lastCall;
+    private FavoritePlacesListener mFavoritePlacesListener;
+
+    public interface FavoritePlacesListener {
+        void onAdd(FavoritePlace place);
+        void onRemove(FavoritePlace place);
+    }
 
     public interface ModeSwitchedListener {
         void onChange(boolean isInFavoritesMode);
@@ -77,6 +83,9 @@ public class ActionBarFragment extends Fragment {
             public void onClick(View view) {
                 if (isFavorite) {
                     mFavoritePlaces.remove(currentFavoritePlace);
+                    if (mFavoritePlacesListener != null) {
+                        mFavoritePlacesListener.onRemove(currentFavoritePlace);
+                    }
                     currentFavoritePlace.delete();
                     isFavorite = false;
                     mFavoriteStar.setImageDrawable(getActivity().getResources().getDrawable(R.drawable.ic_star_outline));
@@ -88,6 +97,9 @@ public class ActionBarFragment extends Fragment {
                         );
                         currentFavoritePlace.save();
                         mFavoritePlaces.add(currentFavoritePlace);
+                        if (mFavoritePlacesListener != null) {
+                            mFavoritePlacesListener.onAdd(currentFavoritePlace);
+                        }
                         isFavorite = true;
                     }
                 }
@@ -236,6 +248,10 @@ public class ActionBarFragment extends Fragment {
                 mModeSwitchedListener.onChange(true);
             }
         }
+    }
+
+    public void setFavoritePlacesListener(FavoritePlacesListener listener) {
+        mFavoritePlacesListener = listener;
     }
 
     public void setModeSwitchedListener(ModeSwitchedListener listener) {

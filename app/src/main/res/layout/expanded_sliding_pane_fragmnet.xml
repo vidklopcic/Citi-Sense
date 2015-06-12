@@ -6,16 +6,12 @@
 <RelativeLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <RelativeLayout
-        android:id="@+id/bar_spacer"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"/>
     <ListView
         android:id="@+id/favorite_places_list_view"
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
         android:layout_above="@+id/add_current_place"
-        android:layout_below="@id/bar_spacer">
+        android:background="@drawable/card">
     </ListView>
     <RelativeLayout
         android:id="@+id/add_current_place"

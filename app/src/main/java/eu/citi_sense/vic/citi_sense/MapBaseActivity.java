@@ -49,6 +49,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.ArrayList;
 
+import eu.citi_sense.vic.citi_sense.global.Databases.FavoritePlace;
 import eu.citi_sense.vic.citi_sense.global.Databases.Station;
 import eu.citi_sense.vic.citi_sense.global.GlobalVariables;
 import eu.citi_sense.vic.citi_sense.global.MapVariables;
@@ -154,7 +155,6 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
                 if (!alreadyRegisteredPaneChange) {
                     mFABAnalysis.hide(true);
                 }
-                mActionBarFragment.setTitleNormal();
             }
 
             @Override
@@ -165,6 +165,7 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
                 }
                 alreadyRegisteredPaneChange = false;
                 TypedValue tv = new TypedValue();
+                mActionBarFragment.setTitleNormal();
                 if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
                     int actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
                     mSlidingPaneLayout.getLayoutParams().height = mSlidingMenu.menu.getHeight()-actionBarHeight;
@@ -191,9 +192,11 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
                     showFab();
                     mFABAnalysis.hide(true);
                 }
+                mActionBarFragment.setTitleNormal();
                 alreadyRegisteredPaneChange = false;
             }
         });
+
         mSlidingMenu = new SlidingMenuHandler(this);
 
         FragmentTransaction ft = mFragmentManager.beginTransaction();
@@ -370,6 +373,18 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
                 intent.putExtra("lng", mActionBarFragment.getLocation().longitude);
                 intent.putExtra("name", mActionBarFragment.getTitle());
                 mContext.startActivity(intent);
+            }
+        });
+
+        mActionBarFragment.setFavoritePlacesListener(new ActionBarFragment.FavoritePlacesListener() {
+            @Override
+            public void onAdd(FavoritePlace place) {
+                mSlidingPaneExpandedFragment.addFavoritePlace(place);
+            }
+
+            @Override
+            public void onRemove(FavoritePlace place) {
+                mSlidingPaneExpandedFragment.removeFavoritePlace(place);
             }
         });
     }
