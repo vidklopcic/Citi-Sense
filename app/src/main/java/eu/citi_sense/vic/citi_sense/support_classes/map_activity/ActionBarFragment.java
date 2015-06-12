@@ -72,7 +72,7 @@ public class ActionBarFragment extends Fragment {
                     isFavorite = false;
                     mFavorite.setImageDrawable(getActivity().getResources().getDrawable(R.drawable.ic_star_outline));
                 } else if (title != null) {
-                    if (!title.equals("Somewhere") || !title.equals("...")) {
+                    if (!title.equals("Dropped pin") || !title.equals("...")) {
                         mFavorite.setImageDrawable(getActivity().getResources().getDrawable(R.drawable.ic_star_full));
                         currentFavoritePlace = new FavoritePlace(
                                 location, title, title
