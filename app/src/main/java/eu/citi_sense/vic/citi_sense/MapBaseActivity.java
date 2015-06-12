@@ -15,9 +15,11 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -60,6 +62,7 @@ import eu.citi_sense.vic.citi_sense.support_classes.map_activity.Places;
 import eu.citi_sense.vic.citi_sense.support_classes.sliding_menu.SlidingMenuHandler;
 import eu.citi_sense.vic.citi_sense.support_classes.sliding_menu.SlidingMenuListeners;
 import eu.citi_sense.vic.citi_sense.support_classes.sliding_up_pane.SlidingUpPaneCollapsedFragment;
+import eu.citi_sense.vic.citi_sense.support_classes.sliding_up_pane.SlidingUpPaneExpandedFragment;
 
 public abstract class MapBaseActivity extends FragmentActivity implements ActionBarFragment.MenuClickInterface {
     public TileOverlay mTileOverlay;
@@ -86,8 +89,12 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
     private Charts mCharts = new Charts();
     private FragmentManager mFragmentManager;
     private SlidingUpPaneCollapsedFragment mSlidingPaneCollapsedFragment;
+    private SlidingUpPaneExpandedFragment mSlidingPaneExpandedFragment;
     private FloatingActionButton mFABAnalysis;
     private Context mContext;
+    private RelativeLayout mSlidingPaneLayout;
+    private RelativeLayout mSpacer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,6 +104,8 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
         );
         mFragmentManager = getFragmentManager();
         mSlidingPaneCollapsedFragment = new SlidingUpPaneCollapsedFragment();
+        mSlidingPaneExpandedFragment = new SlidingUpPaneExpandedFragment();
+        mSlidingPaneLayout = (RelativeLayout) findViewById(R.id.sliding_pane_layout);
         mGVar = (GlobalVariables) getApplicationContext();
         animationDuration = MapVariables.animationDuration;
         mapOffset = Float.valueOf(getResources().getDimension(R.dimen.pullup_panel_height)/2).intValue();
@@ -139,11 +148,6 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
         mSlidingMenu.menu.showMenu();
     }
     protected void setupGui() {
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        int width = size.x;
-        int height = size.y;
         mSlidingUpPane.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
             public void onPanelSlide(View view, float v) {
@@ -160,8 +164,13 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
                     mFABAnalysis.show(true);
                 }
                 alreadyRegisteredPaneChange = false;
+                TypedValue tv = new TypedValue();
+                if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
+                    int actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
+                    mSlidingPaneLayout.getLayoutParams().height = mSlidingMenu.menu.getHeight()-actionBarHeight;
+                    mSlidingPaneLayout.requestLayout();
+                }
             }
-
 
             @Override
             public void onPanelExpanded(View view) {
@@ -296,6 +305,25 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
                 mCurrentLocationMarker.setPosition(latLng);
                 mGVar.mMap.location = latLng;
                 locationChanged(location);
+
+                mActionBarFragment.setModeSwitchedListener(new ActionBarFragment.ModeSwitchedListener() {
+                    @Override
+                    public void onChange(boolean isInFavoritesMode) {
+                        if (isInFavoritesMode) {
+                            FragmentTransaction ft = mFragmentManager.beginTransaction();
+                            ft.replace(R.id.sliding_pane_layout, mSlidingPaneExpandedFragment);
+                            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                            ft.commit();
+                            mFragmentManager.executePendingTransactions();
+                        } else {
+                            FragmentTransaction ft = mFragmentManager.beginTransaction();
+                            ft.replace(R.id.sliding_pane_layout, mSlidingPaneCollapsedFragment);
+                            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                            ft.commit();
+                            mFragmentManager.executePendingTransactions();
+                        }
+                    }
+                });
             }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {}
@@ -420,9 +448,9 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
         @Override
         protected void onPostExecute(String address) {
             try {
-                mActionBarFragment.setTitle(address, mCurrentLocationMarker.getPosition());
-                mPointOfInterestMarker.setTitle(address);
+                mActionBarFragment.setTitle(address, mMarker.getPosition());
                 mMarker.setTitle(address);
+                mPointOfInterestMarker.setTitle(address);
             } catch (NullPointerException ignored) {}
         }
     }

@@ -68,6 +68,13 @@ public class SearchFragment extends Fragment{
         }
     }
 
+    public void setMenuVisible(boolean isVisible) {
+        if (isVisible) {
+            mMenuButton.setVisibility(View.VISIBLE);
+        } else {
+            mMenuButton.setVisibility(View.GONE);
+        }
+    }
     /**
      * Showing google speech input dialog
      * */

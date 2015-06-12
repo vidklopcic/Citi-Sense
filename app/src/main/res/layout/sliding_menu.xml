@@ -132,7 +132,7 @@
                 android:orientation="horizontal"
                 android:paddingLeft="20dp"
                 android:clickable="true"
-                android:background="@drawable/sliding_menu_selector">
+                android:background="@drawable/mid_gray_selector">
                 <ImageView
                     android:layout_gravity="center"
                     android:layout_width="30dp"
@@ -156,7 +156,7 @@
                 android:layout_height="50dp"
                 android:orientation="horizontal"
                 android:paddingLeft="20dp"
-                android:background="@drawable/sliding_menu_selector">
+                android:background="@drawable/mid_gray_selector">
                 <ImageView
                     android:layout_width="30dp"
                     android:layout_margin="5dp"
@@ -180,7 +180,7 @@
                 android:layout_height="50dp"
                 android:orientation="horizontal"
                 android:paddingLeft="20dp"
-                android:background="@drawable/sliding_menu_selector">
+                android:background="@drawable/mid_gray_selector">
                 <ImageView
                     android:layout_gravity="center"
                     android:layout_width="30dp"

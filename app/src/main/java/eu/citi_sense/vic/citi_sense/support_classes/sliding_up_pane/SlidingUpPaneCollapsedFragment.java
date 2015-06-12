@@ -37,6 +37,9 @@ public class SlidingUpPaneCollapsedFragment extends Fragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         mActivity = activity;
+        if (mFragmentView != null) {
+            return;
+        }
         mPollutantCards = new HashMap<>();
         LayoutInflater layoutInflater = (LayoutInflater) mActivity.getApplicationContext()
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -51,7 +54,7 @@ public class SlidingUpPaneCollapsedFragment extends Fragment {
         }
 
         LayoutInflater inflater = LayoutInflater.from(mActivity.getApplicationContext());
-        RelativeLayout pollutantCard = (RelativeLayout) inflater.inflate(R.layout.sliding_pane_pollutant, null, false);
+        RelativeLayout pollutantCard = (RelativeLayout) inflater.inflate(R.layout.sliding_pane_pollutant, null);
         mPollutantsWrapper.addView(pollutantCard);
         mPollutantCards.put(pollutant.current, pollutantCard);
         updatePollutant(pollutant);

@@ -43,4 +43,5 @@
     <string name="aqi_val_unhealthy">200</string>
     <string name="aqi_val_very_unhealthy">300</string>
     <string name="favorite_places">Favorite places</string>
+    <string name="add_current">add current</string>
 </resources>

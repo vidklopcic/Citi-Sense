@@ -18,11 +18,11 @@ import java.util.ArrayList;
 import eu.citi_sense.vic.citi_sense.MapBaseActivity;
 import eu.citi_sense.vic.citi_sense.R;
 import eu.citi_sense.vic.citi_sense.global.Databases.FavoritePlace;
-import eu.citi_sense.vic.citi_sense.global.GlobalVariables;
 import eu.citi_sense.vic.citi_sense.global.MapVariables;
 
 
 public class ActionBarFragment extends Fragment {
+    private static final int DELAY = 200;
     public RelativeLayout mFragmentView;
     public TextView mActionBarTitle;
     public ImageView mFavoriteStar;
@@ -37,6 +37,12 @@ public class ActionBarFragment extends Fragment {
     private ImageView mMenuButton;
     private MenuClickInterface mInterface;
     private boolean mFavoritesStarIsHidden = false;
+    private ModeSwitchedListener mModeSwitchedListener;
+    private long lastCall;
+
+    public interface ModeSwitchedListener {
+        void onChange(boolean isInFavoritesMode);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -62,6 +68,7 @@ public class ActionBarFragment extends Fragment {
             throw new ClassCastException(activity.toString()
                     + " must implement MenuClickInterface");
         }
+        lastCall = System.currentTimeMillis();
     }
     
     private void setOnClickListeners() {
@@ -217,24 +224,35 @@ public class ActionBarFragment extends Fragment {
     }
 
     public void setTitleFavorites() {
-        if (!mFavoritesStarIsHidden) {
+        if (!mFavoritesStarIsHidden && (System.currentTimeMillis() - lastCall) > DELAY) {
+            lastCall = System.currentTimeMillis();
             AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
             anim.setDuration(MapVariables.animationDuration);
             mFavoriteStar.startAnimation(anim);
             mFavoritesStarIsHidden = true;
             mFavoriteStar.setVisibility(View.GONE);
             setTitle(getString(R.string.favorite_places));
+            if (mModeSwitchedListener != null) {
+                mModeSwitchedListener.onChange(true);
+            }
         }
     }
 
+    public void setModeSwitchedListener(ModeSwitchedListener listener) {
+        mModeSwitchedListener = listener;
+    }
     public void setTitleNormal() {
-        if (mFavoritesStarIsHidden) {
+        if (mFavoritesStarIsHidden && (System.currentTimeMillis() - lastCall) > DELAY) {
+            lastCall = System.currentTimeMillis();
             AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
             anim.setDuration(MapVariables.animationDuration);
             mFavoriteStar.startAnimation(anim);
             mFavoritesStarIsHidden = false;
             mFavoriteStar.setVisibility(View.VISIBLE);
             setTitle(title);
+            if (mModeSwitchedListener != null) {
+                mModeSwitchedListener.onChange(false);
+            }
         }
     }
 }
