@@ -20,6 +20,7 @@ public class Pollutants {
     public static final int PM10 = 6;
     public static final int PM2_5 = 7;
     public static final int SO2 = 8;
+    private static final HashMap<Integer, String> unicodeNames;
     public static final HashMap<Integer, String> pollutantNames;
     public static final HashMap<String, Integer> pollutantIndexes;
     public ArrayList<Station> stations;
@@ -33,6 +34,16 @@ public class Pollutants {
         pollutantNames.put(PM10, "PM10");
         pollutantNames.put(PM2_5, "PM2_5");
         pollutantNames.put(SO2, "SO2");
+
+        unicodeNames = new HashMap<>();
+        unicodeNames.put(CO, "CO");
+        unicodeNames.put(CO2, "CO₂");
+        unicodeNames.put(H2O, "H₂O");
+        unicodeNames.put(NO, "NO");
+        unicodeNames.put(O3, "O₃");
+        unicodeNames.put(PM10, "PM₁₀");
+        unicodeNames.put(PM2_5, "PM₂.₅");
+        unicodeNames.put(SO2, "SO₂");
 
         pollutantIndexes = new HashMap<>();
         pollutantIndexes.put("CO", CO);
@@ -304,6 +315,8 @@ public class Pollutants {
         updatePollutant(pollutantIndexes.get(pollutant), aqi);
     }
 
+
+
     public void updatePollutant(int pollutant, int aqi) {
         pollutantsAqi.put(pollutant, aqi);
         if (pollutionCallback != null) {
@@ -321,5 +334,9 @@ public class Pollutants {
 
     public ArrayList<Measurement> getMeasurements(Station station, Integer startTime, Integer endTime) {
         return station.getMeasurements(startTime, endTime);
+    }
+
+    public String getUnicodeName(int pollutant) {
+        return unicodeNames.get(pollutant);
     }
 }

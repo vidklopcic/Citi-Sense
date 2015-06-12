@@ -3,6 +3,8 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.graphics.Point;
 import android.location.Location;
 import android.location.LocationListener;
@@ -39,7 +41,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
-import com.google.android.gms.maps.model.TileProvider;
 import com.google.maps.android.clustering.ClusterManager;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
@@ -57,6 +58,7 @@ import eu.citi_sense.vic.citi_sense.support_classes.map_activity.LocalTileProvid
 import eu.citi_sense.vic.citi_sense.support_classes.map_activity.Places;
 import eu.citi_sense.vic.citi_sense.support_classes.sliding_menu.SlidingMenuHandler;
 import eu.citi_sense.vic.citi_sense.support_classes.sliding_menu.SlidingMenuListeners;
+import eu.citi_sense.vic.citi_sense.support_classes.sliding_up_pane.SlidingUpPaneCollapsedFragment;
 
 public abstract class MapBaseActivity extends FragmentActivity implements ActionBarFragment.MenuClickInterface {
     public TileOverlay mTileOverlay;
@@ -69,9 +71,10 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
     public boolean isMovingAuto = false;
     public FloatingActionMenu mFABPollutants;
     public SlidingMenuHandler mSlidingMenu;
-    public boolean alreadyAnimatedFAB = false;
+    public boolean alreadyRegisteredPaneChange = false;
     public ActionBarFragment mActionBarFragment;
     public SearchFragment mSearchFragment;
+    public int animationDuration;
     private Animation mMapUpAnimation;
     private Integer mapOffset;
     private Animation mMapDownAnimation;
@@ -80,8 +83,8 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
     private FrameLayout mMapWrapper;
     private Marker mCurrentLocationMarker = null;
     private Charts mCharts = new Charts();
-    private RelativeLayout mSlidinPaneLayout;
-    public int animationDuration;
+    private FragmentManager mFragmentManager;
+    private SlidingUpPaneCollapsedFragment mSlidingPaneCollapsedFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,11 +93,12 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
         getWindow().setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
         );
+        mFragmentManager = getFragmentManager();
+        mSlidingPaneCollapsedFragment = new SlidingUpPaneCollapsedFragment();
         mGVar = (GlobalVariables) getApplicationContext();
         animationDuration = MapVariables.animationDuration;
         mapOffset = Float.valueOf(getResources().getDimension(R.dimen.pullup_panel_height)/2).intValue();
         mapOffset -= getPx(55)/2;
-        mSlidinPaneLayout = (RelativeLayout) findViewById(R.id.sliding_pane_layout);
         mFABPollutants = (FloatingActionMenu) findViewById(R.id.menu_pollutant);
         mActionBarFragment = (ActionBarFragment) getFragmentManager().findFragmentById(R.id.map_action_bar_fragment);
         mSearchFragment = (SearchFragment) getFragmentManager().findFragmentById(R.id.map_search_fragment);
@@ -142,15 +146,16 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
 
             @Override
             public void onPanelCollapsed(View view) {
-                if (!alreadyAnimatedFAB) {
+                if (!alreadyRegisteredPaneChange) {
                     hideFab();
                 }
-                alreadyAnimatedFAB = false;
+                alreadyRegisteredPaneChange = false;
             }
 
 
             @Override
             public void onPanelExpanded(View view) {
+                alreadyRegisteredPaneChange = false;
             }
 
             @Override
@@ -159,13 +164,18 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
 
             @Override
             public void onPanelHidden(View view) {
-                if (!alreadyAnimatedFAB) {
+                if (!alreadyRegisteredPaneChange) {
                     showFab();
                 }
-                alreadyAnimatedFAB = false;
+                alreadyRegisteredPaneChange = false;
             }
         });
         mSlidingMenu = new SlidingMenuHandler(this);
+
+        FragmentTransaction ft = mFragmentManager.beginTransaction();
+        ft.add(R.id.sliding_pane_layout, mSlidingPaneCollapsedFragment);
+        ft.commit();
+        mFragmentManager.executePendingTransactions();
     }
 
     public int getPx(float dp) {
@@ -183,6 +193,21 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
     protected void onPause() {
         super.onPause();
         mGVar.mMap.cameraPosition = mMap.getCameraPosition();
+    }
+
+    public void setPaneExpanded() {
+        alreadyRegisteredPaneChange = true;
+        mSlidingUpPane.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+    }
+
+    public void setPaneHidden() {
+        alreadyRegisteredPaneChange = true;
+        mSlidingUpPane.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+    }
+
+    public void setPaneCollapsed() {
+        alreadyRegisteredPaneChange = true;
+        mSlidingUpPane.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
     }
 
     protected abstract void cameraChanged(CameraPosition cameraPosition);
@@ -327,15 +352,12 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
     private void updateStations(ArrayList<Station> stations) {
         mClusterManager.clearItems();
         for(Station station : stations) {
-            Log.d("asdfg", "Station added");
             LatLng latLng = station.getPosition();
             mClusterManager.addItem(new ClusterStation(latLng, station.owner, station));
-            Log.d("asdfg", station.owner);
        }
     }
 
     public Marker addMarker(LatLng position, String title, String id) {
-        Log.d("asdfg", position.toString());
         MarkerOptions markerOptions = new MarkerOptions()
                 .position(position)
                 .title(title)
@@ -398,6 +420,7 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
             fab.setHideAnimation(animation);
             fab.setTag(i);
             fab.setColorNormal(p.color);
+            mSlidingPaneCollapsedFragment.addPollutant(p);
             fab.setOnClickListener(new FloatingActionButton.OnClickListener() {
                 @Override
                 public void onClick(View view) {

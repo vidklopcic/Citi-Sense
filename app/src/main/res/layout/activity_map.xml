@@ -51,6 +51,7 @@
             <!-- TO-DO PullUpPaneLayout-->
         </RelativeLayout>
     </com.sothree.slidinguppanel.SlidingUpPanelLayout>
+
     <com.github.clans.fab.FloatingActionMenu
         android:id="@+id/menu_pollutant"
         android:layout_alignParentBottom="true"

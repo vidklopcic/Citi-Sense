@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+<RelativeLayout
+    android:id="@+id/sliding_pane_pollutant_card"
+    android:layout_width="80dp"
+    android:layout_height="70dp"
+    android:background="@drawable/card">
+    <TextView
+        android:id="@+id/sliding_pane_pollutant_text"
+        android:layout_marginLeft="2dp"
+        android:layout_width="match_parent"
+        android:layout_marginTop="10dp"
+        android:layout_height="fill_parent"
+        android:layout_above="@+id/sliding_pane_pollutant_aqi"
+        android:gravity="center"
+        android:textSize="18sp"
+        android:textColor="#000"
+        android:text="SO2"
+        android:textStyle="bold"/>
+    <TextView
+        android:id="@+id/sliding_pane_pollutant_aqi"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="13sp"
+        android:textColor="#000"
+        android:text="200"
+        android:layout_alignParentBottom="true"/>
+</RelativeLayout>
+</RelativeLayout>

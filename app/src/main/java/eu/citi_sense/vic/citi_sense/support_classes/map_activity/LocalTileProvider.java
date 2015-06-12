@@ -51,7 +51,6 @@ public class LocalTileProvider implements TileProvider {
 
             return new Tile(256, 256, byteArray);
         } catch (IOException e) {
-            Log.d("asdfg", getTileFilename(x, y, zoom));
             e.printStackTrace();
             return null;
         } catch (OutOfMemoryError e) {

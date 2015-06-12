@@ -30,4 +30,16 @@
     <string name="tap_on_mic">Tap on mic to speak</string>
     <string name="your_stations">your stations</string>
     <string name="add_station">add station</string>
+    <string name="aqi_good">good</string>
+    <string name="aqi_unhealthy_sensitive">unhealthy for sensitive</string>
+    <string name="aqi_moderate">moderate</string>
+    <string name="unhealthy_sensitive">un. for sensitive</string>
+    <string name="aqi_unhealthy">unhealthy</string>
+    <string name="very_unhealthy">very un.</string>
+    <string name="aqi_hazardous">hazardous</string>
+    <string name="aqi_val_good">50</string>
+    <string name="aqi_val_moderate">100</string>
+    <string name="aqi_val_unhealthy_sensitive">150</string>
+    <string name="aqi_val_unhealthy">200</string>
+    <string name="aqi_val_very_unhealthy">300</string>
 </resources>
