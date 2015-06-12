@@ -10,32 +10,7 @@
         android:id="@+id/favorite_places_list_view"
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
-        android:layout_above="@+id/add_current_place"
         android:background="@drawable/card">
     </ListView>
-    <RelativeLayout
-        android:id="@+id/add_current_place"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:background="@drawable/mid_gray_selector"
-        android:clickable="true"
-        android:gravity="center"
-        android:layout_alignParentBottom="true">
-        <ImageView
-            android:id="@+id/add_favorites_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="7dp"
-            android:src="@drawable/ic_plus"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center|left"
-            android:textColor="@color/very_light_gray"
-            android:textSize="20sp"
-            android:layout_marginLeft="12dp"
-            android:text="@string/add_current"
-            android:layout_toRightOf="@id/add_favorites_icon"/>
-    </RelativeLayout>
 </RelativeLayout>
 </RelativeLayout>

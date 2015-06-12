@@ -75,6 +75,7 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
     public SlidingUpPanelLayout mSlidingUpPane;
     public boolean isMovingAuto = false;
     public FloatingActionMenu mFABPollutants;
+    public FloatingActionButton mFABFavorites;
     public SlidingMenuHandler mSlidingMenu;
     public boolean alreadyRegisteredPaneChange = false;
     public ActionBarFragment mActionBarFragment;
@@ -112,6 +113,7 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
         mapOffset = Float.valueOf(getResources().getDimension(R.dimen.pullup_panel_height)/2).intValue();
         mapOffset -= getPx(55)/2;
         mFABPollutants = (FloatingActionMenu) findViewById(R.id.menu_pollutant);
+        mFABFavorites = (FloatingActionButton) findViewById(R.id.favorites_fab);
         mFABAnalysis = (FloatingActionButton) findViewById(R.id.fab_analysis);
         mFABAnalysis.hide(false);
         mActionBarFragment = (ActionBarFragment) getFragmentManager().findFragmentById(R.id.map_action_bar_fragment);
@@ -162,6 +164,7 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
                 if (!alreadyRegisteredPaneChange) {
                     hideFab();
                     mFABAnalysis.show(true);
+                    mFABFavorites.hide(true);
                 }
                 alreadyRegisteredPaneChange = false;
                 TypedValue tv = new TypedValue();
@@ -192,6 +195,7 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
                     showFab();
                     mFABAnalysis.hide(true);
                 }
+                mFABFavorites.show(true);
                 mActionBarFragment.setTitleNormal();
                 alreadyRegisteredPaneChange = false;
             }
@@ -239,6 +243,7 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
         alreadyRegisteredPaneChange = true;
         mSlidingUpPane.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
         mFABAnalysis.show(true);
+        mFABFavorites.hide(true);
         hideFab();
     }
 
@@ -374,6 +379,17 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
                 intent.putExtra("lng", mActionBarFragment.getLocation().longitude);
                 intent.putExtra("name", mActionBarFragment.getTitle());
                 mContext.startActivity(intent);
+            }
+        });
+
+        mFABFavorites.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setPaneExpanded();
+                mFABAnalysis.hide(true);
+                mFABFavorites.hide(true);
+                mActionBarFragment.setTitleFavorites();
+                mActionBarFragment.showMenu();
             }
         });
 
