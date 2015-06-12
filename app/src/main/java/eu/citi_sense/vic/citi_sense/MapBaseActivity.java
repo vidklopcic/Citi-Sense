@@ -289,10 +289,6 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
         LocationListener locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
                 LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                if (mGVar.mMap.location == null) {
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
-                    isMovingAuto = true;
-                }
                 if (mGVar.mMap.moveCameraWithLocation) {
                     mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
                     isMovingAuto = true;
@@ -304,6 +300,11 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
                             .title(getString(R.string.pullup_title_your_location))
                             .snippet("your-location");
                     mCurrentLocationMarker = mMap.addMarker(markerOptions);
+                }
+                if (mGVar.mMap.location == null) {
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
+                    markerClicked(mCurrentLocationMarker);
+                    isMovingAuto = true;
                 }
                 mCurrentLocationMarker.setPosition(latLng);
                 mGVar.mMap.location = latLng;
@@ -463,8 +464,8 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
         @Override
         protected void onPostExecute(String address) {
             try {
-                mActionBarFragment.setTitle(address, mMarker.getPosition());
                 mMarker.setTitle(address);
+                mActionBarFragment.setTitle(address, mMarker.getPosition());
                 mPointOfInterestMarker.setTitle(address);
             } catch (NullPointerException ignored) {}
         }

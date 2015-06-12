@@ -44,10 +44,10 @@ public class SlidingUpPaneExpandedFragment extends Fragment {
     }
 
     public void addFavoritePlace(FavoritePlace place) {
-        mFavoritePlacesAdapter.add(place);
+        mFavoritePlaces.add(place);
     }
 
     public void removeFavoritePlace(FavoritePlace place) {
-        mFavoritePlacesAdapter.remove(place);
+        mFavoritePlaces.remove(place);
     }
 }
