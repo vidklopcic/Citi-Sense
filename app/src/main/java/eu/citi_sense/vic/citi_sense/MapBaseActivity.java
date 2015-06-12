@@ -5,6 +5,8 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Point;
 import android.location.Location;
 import android.location.LocationListener;
@@ -13,7 +15,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.View;
@@ -75,6 +76,7 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
     public ActionBarFragment mActionBarFragment;
     public SearchFragment mSearchFragment;
     public int animationDuration;
+    public LatLng mLastCenteredPosition;
     private Animation mMapUpAnimation;
     private Integer mapOffset;
     private Animation mMapDownAnimation;
@@ -85,7 +87,8 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
     private Charts mCharts = new Charts();
     private FragmentManager mFragmentManager;
     private SlidingUpPaneCollapsedFragment mSlidingPaneCollapsedFragment;
-
+    private FloatingActionButton mFABAnalysis;
+    private Context mContext;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,6 +103,8 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
         mapOffset = Float.valueOf(getResources().getDimension(R.dimen.pullup_panel_height)/2).intValue();
         mapOffset -= getPx(55)/2;
         mFABPollutants = (FloatingActionMenu) findViewById(R.id.menu_pollutant);
+        mFABAnalysis = (FloatingActionButton) findViewById(R.id.fab_analysis);
+        mFABAnalysis.hide(false);
         mActionBarFragment = (ActionBarFragment) getFragmentManager().findFragmentById(R.id.map_action_bar_fragment);
         mSearchFragment = (SearchFragment) getFragmentManager().findFragmentById(R.id.map_search_fragment);
         mSlidingUpPane = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
@@ -123,7 +128,8 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
         LinearLayout stationsButton = (LinearLayout) findViewById(R.id.sliding_menu_stations);
         new SlidingMenuListeners(mapButton, analysisButton, stationsButton,
                 SlidingMenuListeners.MAP_ACTIVITY, mSlidingMenu, this);
-        mActionBarFragment.hideMenu();
+        mContext = this;
+        mActionBarFragment.hideMenu(false);
     }
 
     public void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
@@ -142,12 +148,16 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
         mSlidingUpPane.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
             public void onPanelSlide(View view, float v) {
+                if (!alreadyRegisteredPaneChange) {
+                    mFABAnalysis.hide(true);
+                }
             }
 
             @Override
             public void onPanelCollapsed(View view) {
                 if (!alreadyRegisteredPaneChange) {
                     hideFab();
+                    mFABAnalysis.show(true);
                 }
                 alreadyRegisteredPaneChange = false;
             }
@@ -155,6 +165,9 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
 
             @Override
             public void onPanelExpanded(View view) {
+                if (!alreadyRegisteredPaneChange) {
+                    mFABAnalysis.hide(true);
+                }
                 alreadyRegisteredPaneChange = false;
             }
 
@@ -166,6 +179,7 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
             public void onPanelHidden(View view) {
                 if (!alreadyRegisteredPaneChange) {
                     showFab();
+                    mFABAnalysis.hide(true);
                 }
                 alreadyRegisteredPaneChange = false;
             }
@@ -198,16 +212,21 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
     public void setPaneExpanded() {
         alreadyRegisteredPaneChange = true;
         mSlidingUpPane.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+        mFABAnalysis.hide(true);
     }
 
     public void setPaneHidden() {
         alreadyRegisteredPaneChange = true;
         mSlidingUpPane.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+        mFABAnalysis.hide(true);
+        showFab();
     }
 
     public void setPaneCollapsed() {
         alreadyRegisteredPaneChange = true;
         mSlidingUpPane.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        mFABAnalysis.show(true);
+        hideFab();
     }
 
     protected abstract void cameraChanged(CameraPosition cameraPosition);
@@ -313,9 +332,21 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
             }
         };
         mMap.setOnMarkerClickListener(onMarkerClickListener);
+
+        mFABAnalysis.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(mContext, AnalysisActivity.class);
+                intent.putExtra("lat", mPointOfInterestMarker.getPosition().latitude);
+                intent.putExtra("lng", mPointOfInterestMarker.getPosition().longitude);
+                intent.putExtra("name", mActionBarFragment.getTitle());
+                mContext.startActivity(intent);
+            }
+        });
     }
 
     public void centerMap(LatLng position) {
+        mLastCenteredPosition = position;
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(position);
         mMap.animateCamera(cameraUpdate);
         isMovingAuto = true;
@@ -489,7 +520,7 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
             @Override
             protected void applyTransformation(float interpolatedTime, Transformation t) {
                 RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mMapWrapper.getLayoutParams();
-                int calculatedOffset = (int)(mapOffset * interpolatedTime);
+                int calculatedOffset = (int) (mapOffset * interpolatedTime);
                 params.bottomMargin = calculatedOffset;
                 params.topMargin = -calculatedOffset;
                 mMapWrapper.setLayoutParams(params);
@@ -514,7 +545,7 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
 
     public void showFab() {
         mFABPollutants.showMenuButton(true);
-        mActionBarFragment.hideMenu();
+        mActionBarFragment.hideMenu(true);
         mMapWrapper.startAnimation(mMapDownAnimation);
         animateMapDown();
     }

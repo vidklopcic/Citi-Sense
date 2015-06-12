@@ -46,7 +46,7 @@
             android:id="@+id/sliding_pane_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/pullup_bg"
+            android:background="@color/light_gray_background"
             android:orientation="vertical">
             <!-- TO-DO PullUpPaneLayout-->
         </RelativeLayout>
@@ -63,4 +63,13 @@
         fab:fab_showAnimation="@anim/fab_scale_up"
         fab:fab_hideAnimation="@anim/fab_scale_down">
     </com.github.clans.fab.FloatingActionMenu>
+    <com.github.clans.fab.FloatingActionButton
+        android:id="@+id/fab_analysis"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        fab:fab_size="normal"
+        android:layout_marginBottom="@dimen/pullup_panel_height"
+        android:src="@drawable/ic_grafi_light" />
 </RelativeLayout>

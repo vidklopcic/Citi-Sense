@@ -180,9 +180,15 @@ public class ActionBarFragment extends Fragment {
         mShowActionMenuAnimation.setDuration(MapVariables.animationDuration); // in ms
     }
 
-    public void hideMenu() {
+    public void hideMenu(boolean animate) {
         if (((RelativeLayout.LayoutParams) mFragmentView.getLayoutParams()).topMargin == 0) {
-            mFragmentView.startAnimation(mHideActionMenuAnimation);
+            if (animate) {
+                mFragmentView.startAnimation(mHideActionMenuAnimation);
+            } else {
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mFragmentView.getLayoutParams();
+                params.topMargin = -10000;
+                mFragmentView.setLayoutParams(params);
+            }
         }
     }
 
@@ -190,6 +196,10 @@ public class ActionBarFragment extends Fragment {
         if (((RelativeLayout.LayoutParams) mFragmentView.getLayoutParams()).topMargin != 0) {
             mFragmentView.startAnimation(mShowActionMenuAnimation);
         }
+    }
+
+    public String getTitle() {
+        return title;
     }
 
     public interface MenuClickInterface {

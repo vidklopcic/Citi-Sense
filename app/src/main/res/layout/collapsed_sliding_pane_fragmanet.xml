@@ -94,7 +94,6 @@
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
         android:fillViewport="true"
-        android:background="@color/light_gray_background"
         android:layout_below="@id/status_bar">
         <org.apmem.tools.layouts.FlowLayout
             android:gravity="center"

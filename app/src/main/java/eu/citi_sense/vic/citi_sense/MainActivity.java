@@ -21,7 +21,6 @@ public class MainActivity extends MapBaseActivity {
         removePointOfInterest();
         if (mSlidingUpPane.getPanelState() != SlidingUpPanelLayout.PanelState.HIDDEN) {
             setPaneHidden();
-            showFab();
         }
     }
 
@@ -34,7 +33,6 @@ public class MainActivity extends MapBaseActivity {
     protected void mapLongClicked(LatLng latLng) {
         if (mSlidingUpPane.getPanelState() == SlidingUpPanelLayout.PanelState.HIDDEN) {
             setPaneCollapsed();
-            hideFab();
         }
         mGVar.mMap.moveCameraWithLocation = false;
         Marker marker = setPointOfInterest(latLng);
@@ -55,7 +53,6 @@ public class MainActivity extends MapBaseActivity {
         }
         if (mSlidingUpPane.getPanelState() == SlidingUpPanelLayout.PanelState.HIDDEN) {
             setPaneCollapsed();
-            hideFab();
         }
     }
 }
