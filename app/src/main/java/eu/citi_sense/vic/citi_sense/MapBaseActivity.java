@@ -337,8 +337,8 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(mContext, AnalysisActivity.class);
-                intent.putExtra("lat", mPointOfInterestMarker.getPosition().latitude);
-                intent.putExtra("lng", mPointOfInterestMarker.getPosition().longitude);
+                intent.putExtra("lat", mLastCenteredPosition.latitude);
+                intent.putExtra("lng", mLastCenteredPosition.longitude);
                 intent.putExtra("name", mActionBarFragment.getTitle());
                 mContext.startActivity(intent);
             }
