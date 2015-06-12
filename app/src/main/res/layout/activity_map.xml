@@ -34,12 +34,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="65dp"
                 tools:layout="@layout/search_fragment" />
-            <fragment
-                android:name="eu.citi_sense.vic.citi_sense.support_classes.map_activity.ActionBarFragment"
-                android:id="@+id/map_action_bar_fragment"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                tools:layout="@layout/map_action_bar_fragment"/>
         </RelativeLayout>
 
         <RelativeLayout
@@ -72,4 +66,10 @@
         fab:fab_size="normal"
         android:layout_marginBottom="@dimen/pullup_panel_height"
         android:src="@drawable/ic_grafi_light" />
+    <fragment
+        android:name="eu.citi_sense.vic.citi_sense.support_classes.map_activity.ActionBarFragment"
+        android:id="@+id/map_action_bar_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        tools:layout="@layout/map_action_bar_fragment"/>
 </RelativeLayout>

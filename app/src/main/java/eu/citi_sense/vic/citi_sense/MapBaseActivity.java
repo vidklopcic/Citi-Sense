@@ -76,7 +76,6 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
     public ActionBarFragment mActionBarFragment;
     public SearchFragment mSearchFragment;
     public int animationDuration;
-    public LatLng mLastCenteredPosition;
     private Animation mMapUpAnimation;
     private Integer mapOffset;
     private Animation mMapDownAnimation;
@@ -151,6 +150,7 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
                 if (!alreadyRegisteredPaneChange) {
                     mFABAnalysis.hide(true);
                 }
+                mActionBarFragment.setTitleNormal();
             }
 
             @Override
@@ -167,6 +167,7 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
             public void onPanelExpanded(View view) {
                 if (!alreadyRegisteredPaneChange) {
                     mFABAnalysis.hide(true);
+                    mActionBarFragment.setTitleFavorites();
                 }
                 alreadyRegisteredPaneChange = false;
             }
@@ -337,8 +338,8 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(mContext, AnalysisActivity.class);
-                intent.putExtra("lat", mLastCenteredPosition.latitude);
-                intent.putExtra("lng", mLastCenteredPosition.longitude);
+                intent.putExtra("lat", mActionBarFragment.getLocation().latitude);
+                intent.putExtra("lng", mActionBarFragment.getLocation().longitude);
                 intent.putExtra("name", mActionBarFragment.getTitle());
                 mContext.startActivity(intent);
             }
@@ -346,7 +347,6 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
     }
 
     public void centerMap(LatLng position) {
-        mLastCenteredPosition = position;
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(position);
         mMap.animateCamera(cameraUpdate);
         isMovingAuto = true;
