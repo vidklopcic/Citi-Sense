@@ -32,4 +32,5 @@
     <color name="maps_blue">#4084F6</color>
     <color name="transparent_pressed">#70ffffff</color>
     <color name="gold">#ffffd400</color>
+    <color name="gold_pressed">#fffff550</color>
 </resources>

@@ -180,6 +180,7 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
             public void onPanelExpanded(View view) {
                 if (!alreadyRegisteredPaneChange) {
                     mFABAnalysis.hide(true);
+                    mFABPollutants.hideMenuButton(true);
                     mActionBarFragment.setTitleFavorites();
                 }
                 alreadyRegisteredPaneChange = false;
@@ -230,6 +231,7 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
         alreadyRegisteredPaneChange = true;
         mSlidingUpPane.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
         mFABAnalysis.hide(true);
+        mFABPollutants.hideMenuButton(true);
     }
 
     public void setPaneHidden() {
@@ -529,6 +531,16 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
             fab.setColorPressed(p.color_pressed);
             mFABPollutants.addMenuButton(fab);
         }
+        mFABPollutants.setOnMenuToggleListener(new FloatingActionMenu.OnMenuToggleListener() {
+            @Override
+            public void onMenuToggle(boolean b) {
+                if (b) {
+                    mFABFavorites.hide(true);
+                } else {
+                    mFABFavorites.show(true);
+                }
+            }
+        });
         createCustomAnimation();
         updateStations(mGVar.Pollutant.stations);
     }

@@ -67,6 +67,7 @@
         android:layout_marginBottom="67dp"
         fab:fab_size="mini"
         fab:fab_colorNormal="@color/gold"
+        fab:fab_colorPressed="@color/gold_pressed"
         android:layout_above="@+id/menu_pollutant"
         android:src="@drawable/ic_star_fab" />
     <com.github.clans.fab.FloatingActionButton
