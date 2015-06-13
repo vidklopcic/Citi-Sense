@@ -40,6 +40,7 @@ public class ActionBarFragment extends Fragment {
     private ModeSwitchedListener mModeSwitchedListener;
     private long lastCall;
     private FavoritePlacesListener mFavoritePlacesListener;
+    private FavoritePlace mFavoritePlace;
 
     public interface FavoritePlacesListener {
         void onAdd(FavoritePlace place);
@@ -53,7 +54,7 @@ public class ActionBarFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        FavoritePlace mFavoritePlace = new FavoritePlace();
+        mFavoritePlace = new FavoritePlace();
         mFavoritePlaces = mFavoritePlace.getFavoritePlaces();
         mFragmentView = (RelativeLayout) inflater.inflate(R.layout.map_action_bar_fragment, container, false);
         mActionBarTitle = (TextView) mFragmentView.findViewById(R.id.map_action_bar_title);
@@ -120,7 +121,7 @@ public class ActionBarFragment extends Fragment {
         if (title == null) {
             return;
         }
-        if (placeExists(title)) {
+        if (placeExists(location)) {
             isFavorite = true;
         }
         mActionBarTitle.setText(title);
@@ -128,9 +129,9 @@ public class ActionBarFragment extends Fragment {
         this.title = title;
     }
 
-    private boolean placeExists(String place) {
+    private boolean placeExists(LatLng position) {
         for (FavoritePlace favoritePlace : mFavoritePlaces) {
-            if(favoritePlace.name.equals(place)) {
+            if(position.equals(new LatLng(favoritePlace.lat, favoritePlace.lng))) {
                 currentFavoritePlace = favoritePlace;
                 currentFavoritePlace.setUsed();
                 mFavoriteStar.setImageDrawable(getActivity().getResources().getDrawable(R.drawable.ic_star_full));
@@ -270,5 +271,9 @@ public class ActionBarFragment extends Fragment {
                 mModeSwitchedListener.onChange(false);
             }
         }
+    }
+
+    public void updatePlaces() {
+        mFavoritePlaces = mFavoritePlace.getFavoritePlaces();
     }
 }

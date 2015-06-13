@@ -16,6 +16,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.View;
@@ -95,7 +97,7 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
     private FloatingActionButton mFABAnalysis;
     private Context mContext;
     private RelativeLayout mSlidingPaneLayout;
-    private RelativeLayout mSpacer;
+    private boolean mSlidingPaneHeightIsSet = false;
     private boolean toggledFABPollutantsProgramatically = false;
 
     @Override
@@ -152,6 +154,7 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
         mSlidingMenu.menu.showMenu();
     }
     protected void setupGui() {
+        mActionBarFragment.setTitleNormal();
         mSlidingUpPane.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
             public void onPanelSlide(View view, float v) {
@@ -167,14 +170,9 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
                     mFABAnalysis.show(true);
                     mFABFavorites.hide(true);
                 }
+                setPaneHeight();
                 alreadyRegisteredPaneChange = false;
-                TypedValue tv = new TypedValue();
                 mActionBarFragment.setTitleNormal();
-                if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-                    int actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
-                    mSlidingPaneLayout.getLayoutParams().height = mSlidingMenu.menu.getHeight()-actionBarHeight;
-                    mSlidingPaneLayout.requestLayout();
-                }
             }
 
             @Override
@@ -214,6 +212,16 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
     public int getPx(float dp) {
         return (int) TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics());
+    }
+
+    private void setPaneHeight() {
+        TypedValue tv = new TypedValue();
+        if (!mSlidingPaneHeightIsSet && getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
+            int actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
+            mSlidingPaneLayout.getLayoutParams().height = mSlidingMenu.menu.getHeight()-actionBarHeight;
+            mSlidingPaneLayout.requestLayout();
+            mSlidingPaneHeightIsSet = true;
+        }
     }
 
     @Override
@@ -326,25 +334,6 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
                 mCurrentLocationMarker.setPosition(latLng);
                 mGVar.mMap.location = latLng;
                 locationChanged(location);
-
-                mActionBarFragment.setModeSwitchedListener(new ActionBarFragment.ModeSwitchedListener() {
-                    @Override
-                    public void onChange(boolean isInFavoritesMode) {
-                        if (isInFavoritesMode) {
-                            FragmentTransaction ft = mFragmentManager.beginTransaction();
-                            ft.replace(R.id.sliding_pane_layout, mSlidingPaneExpandedFragment);
-                            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                            ft.commit();
-                            mFragmentManager.executePendingTransactions();
-                        } else {
-                            FragmentTransaction ft = mFragmentManager.beginTransaction();
-                            ft.replace(R.id.sliding_pane_layout, mSlidingPaneCollapsedFragment);
-                            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                            ft.commit();
-                            mFragmentManager.executePendingTransactions();
-                        }
-                    }
-                });
             }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {}
@@ -397,11 +386,14 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
         mFABFavorites.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setPaneExpanded();
-                mFABAnalysis.hide(true);
-                mFABFavorites.hide(true);
-                mActionBarFragment.setTitleFavorites();
-                mActionBarFragment.showMenu();
+                setPaneHeight();
+                if (mSlidingPaneHeightIsSet) {
+                    setPaneExpanded();
+                    mFABAnalysis.hide(true);
+                    mFABFavorites.hide(true);
+                    mActionBarFragment.setTitleFavorites();
+                    mActionBarFragment.showMenu();
+                }
             }
         });
 
@@ -417,10 +409,34 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
             }
         });
 
-        mSlidingPaneExpandedFragment.setOnPlaceClickListener(new SlidingUpPaneExpandedFragment.PlaceClickListener() {
+        mSlidingPaneExpandedFragment.setOnPlaceClickListener(new SlidingUpPaneExpandedFragment.PlaceListener() {
             @Override
             public void onClick(FavoritePlace place) {
                 mapLongClicked(new LatLng(place.lat, place.lng), place.nickname);
+            }
+
+            @Override
+            public void placeChanged() {
+                mActionBarFragment.updatePlaces();
+            }
+        });
+
+        mActionBarFragment.setModeSwitchedListener(new ActionBarFragment.ModeSwitchedListener() {
+            @Override
+            public void onChange(boolean isInFavoritesMode) {
+                if (isInFavoritesMode) {
+                    FragmentTransaction ft = mFragmentManager.beginTransaction();
+                    ft.replace(R.id.sliding_pane_layout, mSlidingPaneExpandedFragment);
+                    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                    ft.commit();
+                    mFragmentManager.executePendingTransactions();
+                } else {
+                    FragmentTransaction ft = mFragmentManager.beginTransaction();
+                    ft.replace(R.id.sliding_pane_layout, mSlidingPaneCollapsedFragment);
+                    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                    ft.commit();
+                    mFragmentManager.executePendingTransactions();
+                }
             }
         });
     }
@@ -518,7 +534,7 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
         mTileOverlay.remove();
         mTileOverlay = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mTileProvider));
 
-        for(int i=1; i<=mGVar.Pollutant.nOfPollutants; i++) {
+        for(int i=1; i<= Pollutants.nOfPollutants; i++) {
             FloatingActionButton fab = new FloatingActionButton(this);
             Pollutants p = mGVar.Pollutant.getPollutant(i);
             fab.setImageDrawable(getResources().getDrawable(p.icon));
@@ -640,8 +656,8 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
     }
 
     public void hideFab() {
-        mFABPollutants.hideMenuButton(true);
         toggledFABPollutantsProgramatically = true;
+        mFABPollutants.hideMenuButton(true);
         mActionBarFragment.showMenu();
         animateMapUp();
     }

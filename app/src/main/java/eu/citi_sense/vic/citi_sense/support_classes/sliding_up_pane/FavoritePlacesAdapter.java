@@ -42,11 +42,12 @@ public class FavoritePlacesAdapter extends ArrayAdapter<FavoritePlace> {
             public void onClick(View view) {
                 if (mPlaceClickListener != null) {
                     mPlaceClickListener.onPlaceClick(view);
+                    mPlaceClickListener.onPlaceClick(view);
                 }
             }
         });
         TextView name = (TextView) convertView.findViewById(R.id.favorite_place_name);
-        name.setText(place.name);
+        name.setText(place.nickname);
         ImageView edit = (ImageView) convertView.findViewById(R.id.edit_icon);
         edit.setTag(position);
         edit.setOnClickListener(new View.OnClickListener() {
