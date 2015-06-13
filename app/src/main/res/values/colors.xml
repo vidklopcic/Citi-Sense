@@ -26,6 +26,7 @@
     <color name="humidity_sliding_menu_bg">#ff2b7cc0</color>
     <color name="sliding_menu_pressed">#3a919191</color>
     <color name="light_gray_background">#F4F4F4</color>
+    <color name="transparent_gray_background">#97000000</color>
     <color name="text_color_light">#aaaaaa</color>
     <color name="dark_blue_grey">#293238</color>
     <color name="very_light_gray">#C6C6C6</color>
