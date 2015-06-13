@@ -15,8 +15,8 @@
 
     <application
         android:name=".global.GlobalVariables"
-        android:icon="@drawable/ic_citisense_logo"
         android:allowBackup="true"
+        android:icon="@drawable/ic_citisense_logo"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
 
@@ -55,7 +55,7 @@
             android:name=".StationsActivity"
             android:label=""
             android:parentActivityName=".MainActivity"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
@@ -63,11 +63,15 @@
         <activity
             android:name=".AnalysisActivity"
             android:label="@string/title_activity_analysis"
-            android:screenOrientation="portrait"
-            android:parentActivityName=".MainActivity" >
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
+        </activity>
+        <activity
+            android:name=".StationActivity"
+            android:label="@string/title_activity_station" >
         </activity>
     </application>
 

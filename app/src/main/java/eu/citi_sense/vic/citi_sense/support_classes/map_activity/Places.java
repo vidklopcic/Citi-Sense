@@ -39,7 +39,7 @@ public class Places {
 
     public String getAddress(Double lat, Double lon) {
         Geocoder geocoder = new Geocoder(mContext, Locale.ENGLISH);
-        String address = "Somewhere";
+        String address = "Dropped pin";
         List<Address> addresses;
         try {
             addresses = geocoder.getFromLocation(lat, lon, 1);

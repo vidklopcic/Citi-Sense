@@ -1,6 +1,7 @@
 package eu.citi_sense.vic.citi_sense;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -91,5 +92,10 @@ public class StationsActivity extends Activity {
 
     public void menuBtnClicked(View view) {
         mSlidingMenu.menu.showMenu(true);
+    }
+
+    public void stationClicked(View view) {
+        Intent intent = new Intent(this, StationActivity.class);
+        this.startActivity(intent);
     }
 }

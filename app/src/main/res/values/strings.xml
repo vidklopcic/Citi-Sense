@@ -44,4 +44,6 @@
     <string name="aqi_val_very_unhealthy">300</string>
     <string name="favorite_places">Favorite places</string>
     <string name="add_current">add current</string>
+    <string name="title_activity_station">StationActivity</string>
+    <string name="aqi_legend">AQI (last 24h)</string>
 </resources>
