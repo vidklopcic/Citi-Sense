@@ -387,13 +387,12 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
             @Override
             public void onClick(View view) {
                 setPaneHeight();
-                if (mSlidingPaneHeightIsSet) {
-                    setPaneExpanded();
-                    mFABAnalysis.hide(true);
-                    mFABFavorites.hide(true);
-                    mActionBarFragment.setTitleFavorites();
-                    mActionBarFragment.showMenu();
-                }
+                setPaneHidden();
+                setPaneExpanded();
+                mFABAnalysis.hide(true);
+                mFABFavorites.hide(true);
+                mActionBarFragment.setTitleFavorites();
+                mActionBarFragment.showMenu();
             }
         });
 
