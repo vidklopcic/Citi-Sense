@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.ArrayList;
 
 import eu.citi_sense.vic.citi_sense.R;
@@ -21,6 +23,12 @@ public class SlidingUpPaneExpandedFragment extends Fragment {
     private FavoritePlacesAdapter mFavoritePlacesAdapter;
     private ArrayList<FavoritePlace> mFavoritePlaces;
     private Activity mActivity;
+    private PlaceClickListener mPlaceClickListener;
+
+    public interface PlaceClickListener {
+        void onClick(FavoritePlace place);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -41,13 +49,34 @@ public class SlidingUpPaneExpandedFragment extends Fragment {
         mFavoritePlacesListView = (ListView) mFragmentView.findViewById(R.id.favorite_places_list_view);
         mFavoritePlacesAdapter = new FavoritePlacesAdapter(mActivity.getApplicationContext(), mFavoritePlaces);
         mFavoritePlacesListView.setAdapter(mFavoritePlacesAdapter);
+        mFavoritePlacesAdapter.setOnClickListener(new FavoritePlacesAdapter.PlaceClickListener() {
+            @Override
+            public void onEditClick(View view) {
+
+            }
+
+            @Override
+            public void onPlaceClick(View view) {
+                if (mPlaceClickListener != null) {
+                    mPlaceClickListener.onClick(mFavoritePlacesAdapter.getItem((Integer) view.getTag()));
+                }
+            }
+        });
+    }
+
+    public void setOnPlaceClickListener(PlaceClickListener listener) {
+        mPlaceClickListener = listener;
     }
 
     public void addFavoritePlace(FavoritePlace place) {
         mFavoritePlaces.add(place);
     }
 
-    public void removeFavoritePlace(FavoritePlace place) {
-        mFavoritePlaces.remove(place);
+    public void removeFavoritePlace(LatLng position) {
+        for (FavoritePlace place : mFavoritePlaces) {
+            if (position.equals(new LatLng(place.lat, place.lng))) {
+                mFavoritePlaces.remove(place);
+            }
+        }
     }
 }

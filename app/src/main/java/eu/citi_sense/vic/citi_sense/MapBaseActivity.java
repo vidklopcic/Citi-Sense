@@ -96,6 +96,7 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
     private Context mContext;
     private RelativeLayout mSlidingPaneLayout;
     private RelativeLayout mSpacer;
+    private boolean toggledFABPollutantsProgramatically = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -261,6 +262,7 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
     protected abstract void cameraChanged(CameraPosition cameraPosition);
     protected abstract void mapClicked(LatLng latLng);
     protected abstract void locationChanged(Location location);
+    protected abstract void mapLongClicked(LatLng latLng, String nickname);
     protected abstract void mapLongClicked(LatLng latLng);
     protected abstract void markerClicked(Marker marker);
 
@@ -282,7 +284,6 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
         GoogleMap.OnMapLongClickListener onMapLongClickListener = new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
-                removePointOfInterest();
                 mapLongClicked(latLng);
             }
         };
@@ -411,8 +412,15 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
             }
 
             @Override
-            public void onRemove(FavoritePlace place) {
-                mSlidingPaneExpandedFragment.removeFavoritePlace(place);
+            public void onRemove(LatLng position) {
+                mSlidingPaneExpandedFragment.removeFavoritePlace(position);
+            }
+        });
+
+        mSlidingPaneExpandedFragment.setOnPlaceClickListener(new SlidingUpPaneExpandedFragment.PlaceClickListener() {
+            @Override
+            public void onClick(FavoritePlace place) {
+                mapLongClicked(new LatLng(place.lat, place.lng), place.nickname);
             }
         });
     }
@@ -493,7 +501,6 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
             try {
                 mMarker.setTitle(address);
                 mActionBarFragment.setTitle(address, mMarker.getPosition());
-                mPointOfInterestMarker.setTitle(address);
             } catch (NullPointerException ignored) {}
         }
     }
@@ -545,7 +552,8 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
             public void onMenuToggle(boolean b) {
                 if (b) {
                     mFABFavorites.hide(true);
-                } else {
+                } else if(!toggledFABPollutantsProgramatically) {
+                    toggledFABPollutantsProgramatically = false;
                     mFABFavorites.show(true);
                 }
             }
@@ -633,6 +641,7 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
 
     public void hideFab() {
         mFABPollutants.hideMenuButton(true);
+        toggledFABPollutantsProgramatically = true;
         mActionBarFragment.showMenu();
         animateMapUp();
     }

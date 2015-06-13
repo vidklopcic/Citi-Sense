@@ -43,7 +43,7 @@ public class ActionBarFragment extends Fragment {
 
     public interface FavoritePlacesListener {
         void onAdd(FavoritePlace place);
-        void onRemove(FavoritePlace place);
+        void onRemove(LatLng place);
     }
 
     public interface ModeSwitchedListener {
@@ -84,7 +84,7 @@ public class ActionBarFragment extends Fragment {
                 if (isFavorite) {
                     mFavoritePlaces.remove(currentFavoritePlace);
                     if (mFavoritePlacesListener != null) {
-                        mFavoritePlacesListener.onRemove(currentFavoritePlace);
+                        mFavoritePlacesListener.onRemove(new LatLng(currentFavoritePlace.lat, currentFavoritePlace.lng));
                     }
                     currentFavoritePlace.delete();
                     isFavorite = false;

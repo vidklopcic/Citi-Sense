@@ -46,4 +46,7 @@
     <string name="add_current">add current</string>
     <string name="title_activity_station">StationActivity</string>
     <string name="aqi_legend">AQI (last 24h)</string>
+    <string name="name">name</string>
+    <string name="save">save</string>
+    <string name="remove">remove</string>
 </resources>

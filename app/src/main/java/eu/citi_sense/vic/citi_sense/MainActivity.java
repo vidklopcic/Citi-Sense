@@ -29,15 +29,27 @@ public class MainActivity extends MapBaseActivity {
 
     }
 
+
     @Override
-    protected void mapLongClicked(LatLng latLng) {
-        if (mSlidingUpPane.getPanelState() == SlidingUpPanelLayout.PanelState.HIDDEN) {
+    protected void mapLongClicked(LatLng latLng, String nickname) {
+        removePointOfInterest();
+        if (mSlidingUpPane.getPanelState() != SlidingUpPanelLayout.PanelState.COLLAPSED) {
             setPaneCollapsed();
         }
         mGVar.mMap.moveCameraWithLocation = false;
         Marker marker = setPointOfInterest(latLng);
-        setActionBarTitle(marker);
+        if (nickname != null) {
+            mActionBarFragment.setTitle(nickname, latLng);
+            marker.setTitle(nickname);
+        } else {
+            setActionBarTitle(marker);
+        }
         centerMap(latLng);
+    }
+
+    @Override
+    protected void mapLongClicked(LatLng latLng) {
+        mapLongClicked(latLng, null);
     }
 
     @Override
