@@ -34,4 +34,5 @@
     <color name="gold">#ffffd400</color>
     <color name="gold_pressed">#fffff550</color>
     <color name="lighter_dark_blue">#273238</color>
+    <color name="light_gray_text">#dddddd</color>
 </resources>
