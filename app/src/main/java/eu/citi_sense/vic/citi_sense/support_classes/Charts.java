@@ -77,7 +77,7 @@ public class Charts {
 
         // enable scaling and dragging
         chart.setDragEnabled(true);
-        chart.setScaleEnabled(true);
+        chart.setScaleEnabled(false);
 
         // if disabled, scaling can be done on x- and y-axis separately
         chart.setPinchZoom(false);

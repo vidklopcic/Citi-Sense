@@ -130,7 +130,7 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
 
         initFAB();
 
-        LineData data = mGVar.data.getAQIData(10, 5);
+        LineData data = mGVar.data.getAQIData(24, 5);
         LineChart chart = (LineChart) findViewById(R.id.sliding_menu_chart);
         mCharts.setupAQISlidingChart(data, chart);
 
@@ -222,6 +222,7 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
         if (mGVar.mMap.centerOnResume != null) {
             if (mGVar.mMap.centerOnResume == mGVar.mMap.location) {
                 markerClicked(mCurrentLocationMarker);
+                centerMap(mGVar.mMap.centerOnResume);
             } else {
                 mapLongClicked(mGVar.mMap.centerOnResume);
             }

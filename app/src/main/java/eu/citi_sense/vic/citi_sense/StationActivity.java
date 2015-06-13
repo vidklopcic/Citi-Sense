@@ -50,7 +50,7 @@ public class StationActivity extends Activity {
         ArrayAdapter<Pollutants> adapter = new PollutantsAdapter(this, mPollutants);
         mPollutantsListView.setAdapter(adapter);
 
-        LineData data = new Data().getAQIData(10, 5);
+        LineData data = new Data().getAQIData(24, 3);
         LineChart chart = (LineChart) findViewById(R.id.stations_chart);
         mCharts = new Charts();
         mCharts.setupAQIStationChart(data, chart);
