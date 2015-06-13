@@ -29,6 +29,10 @@ public class Data {
     }
 
     public LineData getAQIData(int count, float range) {
+        return getAQIData(count, range, 0);
+    }
+
+    public LineData getAQIData(int count, float range, float offset) {
 
         ArrayList<String> xVals = new ArrayList<>();
         for (int i = 0; i < count; i++) {
@@ -39,6 +43,7 @@ public class Data {
 
         for (int i = 0; i < count; i++) {
             float val = (float) (Math.random() * range) + 3;
+            val += offset;
             yVals.add(new Entry(val, i));
         }
 
