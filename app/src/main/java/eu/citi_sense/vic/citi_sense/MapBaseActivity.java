@@ -130,7 +130,7 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
 
         initFAB();
 
-        LineData data = mGVar.data.getAQIData(24, 5);
+        LineData data = mGVar.data.getAQIData(10, 5);
         LineChart chart = (LineChart) findViewById(R.id.sliding_menu_chart);
         mCharts.setupAQISlidingChart(data, chart);
 
@@ -219,6 +219,14 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
     protected void onResume() {
         super.onResume();
         setUpMapIfNeeded();
+        if (mGVar.mMap.centerOnResume != null) {
+            if (mGVar.mMap.centerOnResume == mGVar.mMap.location) {
+                markerClicked(mCurrentLocationMarker);
+            } else {
+                mapLongClicked(mGVar.mMap.centerOnResume);
+            }
+        }
+        mGVar.mMap.centerOnResume = null;
     }
 
     @Override
@@ -416,9 +424,9 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
 
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
+        SupportMapFragment mapFragment = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map));
         if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
-            SupportMapFragment mapFragment = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map));
             mapFragment.setRetainInstance(true);
             mMap = mapFragment.getMap();
             // Check if we were successful in obtaining the map.

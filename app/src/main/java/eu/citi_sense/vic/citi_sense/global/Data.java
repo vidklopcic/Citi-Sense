@@ -53,6 +53,7 @@ public class Data {
         set1.setCircleColor(Color.WHITE);
         set1.setHighLightColor(Color.WHITE);
         set1.setDrawValues(false);
+        set1.setDrawCubic(true);
 
         ArrayList<LineDataSet> dataSets = new ArrayList<>();
         dataSets.add(set1); // add the datasets

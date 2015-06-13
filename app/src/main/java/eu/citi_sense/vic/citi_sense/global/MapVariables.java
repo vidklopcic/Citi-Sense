@@ -10,4 +10,5 @@ public class MapVariables {
     public CameraPosition cameraPosition = null;
     public boolean moveCameraWithLocation = false;
     public static final int animationDuration = 200;
+    public LatLng centerOnResume = null;
 }

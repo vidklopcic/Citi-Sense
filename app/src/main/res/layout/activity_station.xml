@@ -26,7 +26,8 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:textColor="#ffffff"
-            android:textSize="22sp" />
+            android:textSize="22sp"
+            android:text="VESNA"/>
     </LinearLayout>
     <RelativeLayout
         android:layout_width="match_parent"
@@ -86,18 +87,15 @@
                     android:textColor="#fff"/>
             </LinearLayout>
         </RelativeLayout>
-        <ScrollView
+        <ListView
+            android:id="@+id/pollutants_station_list_view"
             android:layout_width="match_parent"
+            android:divider="@null"
+            android:dividerHeight="0dp"
             android:layout_height="match_parent"
-            android:fillViewport="true"
+            android:clickable="false"
             android:layout_marginTop="@dimen/station_chart_height">
-            <LinearLayout
-                android:background="@color/light_gray_background"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-            </LinearLayout>
-        </ScrollView>
+        </ListView>
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/station_location_fab"
             android:layout_width="wrap_content"

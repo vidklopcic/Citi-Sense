@@ -1,7 +1,6 @@
 package eu.citi_sense.vic.citi_sense.global;
 import android.animation.ArgbEvaluator;
 import android.content.Context;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,7 +10,7 @@ import eu.citi_sense.vic.citi_sense.global.Databases.Measurement;
 import eu.citi_sense.vic.citi_sense.global.Databases.Station;
 
 public class Pollutants {
-    public int nOfPollutants = 8;
+    public static final int nOfPollutants = 8;
     public static final int CO = 1;
     public static final int CO2 = 2;
     public static final int H2O = 3;
@@ -62,16 +61,20 @@ public class Pollutants {
     public Integer current;
     public Integer color;
     public Integer color_pressed;
+    public Float raw_value;
+    public String raw_value_unit;
 
-    HashMap<Integer, Integer> pollutantsAqi = new HashMap<>();
+    private HashMap<Integer, Integer> pollutantsAqi = new HashMap<>();
+    private HashMap<Integer, String[]> pollutantsRaw = new HashMap<>();
 
     private Context context;
     public Pollutants(Context context) {
         this.context = context;
-        initializeAqis();
+        initializeAqiVals();
+        initializeRawVals();
     }
 
-    public void initializeAqis() {
+    public void initializeAqiVals() {
         pollutantsAqi.put(CO, 80);
         pollutantsAqi.put(CO2, 20);
         pollutantsAqi.put(H2O, 0);
@@ -82,12 +85,39 @@ public class Pollutants {
         pollutantsAqi.put(SO2, 75);
     }
 
+    public void initializeRawVals() {
+        pollutantsRaw.put(CO, new String[]{"500", "μg/m³"});
+        pollutantsRaw.put(CO2, new String[]{"20", "μg/m³"});
+        pollutantsRaw.put(H2O, new String[]{"68", "%"});
+        pollutantsRaw.put(NO, new String[]{"27", "μg/m³"});
+        pollutantsRaw.put(O3, new String[]{"69", "μg/m³"});
+        pollutantsRaw.put(PM10, new String[]{"19", "μg/m³"});
+        pollutantsRaw.put(PM2_5, new String[]{"25", "μg/m³"});
+        pollutantsRaw.put(SO2, new String[]{"645", "μg/m³"});
+    }
+
+    public void setRawValue(Float value, String unit) {
+        pollutantsRaw.put(current, new String[] {value.toString(), unit});
+        if (pollutionCallback != null) {
+            pollutionCallback.pollutantRawUpdated(current);
+        }
+    }
+
+    public void setAqiValue(int value) {
+        pollutantsAqi.put(current, value);
+        if (pollutionCallback != null) {
+            pollutionCallback.pollutantUpdated(current);
+        }
+    }
+
     public PollutionCallback pollutionCallback;
 
     public interface PollutionCallback {
         void pollutantChanged();
 
         void pollutantUpdated(int pollutant);
+
+        void pollutantRawUpdated(Integer current);
     }
 
     public void setPollutionChangeListener(PollutionCallback callback) {
@@ -175,7 +205,7 @@ public class Pollutants {
         stations = new ArrayList<>(
                 Station.find(Station.class, "CO = ?", "1")
         );
-        afterChange();
+        afterChange(CO);
     }
     private void setCO2() {
         icon = R.drawable.ic_co2;
@@ -185,7 +215,7 @@ public class Pollutants {
         stations = new ArrayList<>(
                 Station.find(Station.class, "CO2 = ?", "1")
         );
-        afterChange();
+        afterChange(CO2);
     }
     private void setH2O() {
         icon = R.drawable.ic_h2o;
@@ -195,7 +225,7 @@ public class Pollutants {
         stations = new ArrayList<>(
                 Station.find(Station.class, "H2O = ?", "1")
         );
-        afterChange();
+        afterChange(H2O);
     }
     private void setNO() {
         icon = R.drawable.ic_no;
@@ -205,7 +235,7 @@ public class Pollutants {
         stations = new ArrayList<>(
                 Station.find(Station.class, "NO = ?", "1")
         );
-        afterChange();
+        afterChange(NO);
     }
     private void setO3() {
         icon = R.drawable.ic_o3;
@@ -215,7 +245,7 @@ public class Pollutants {
         stations = new ArrayList<>(
                 Station.find(Station.class, "O3 = ?", "1")
         );
-        afterChange();
+        afterChange(O3);
     }
     private void setPM10() {
         icon = R.drawable.ic_pm10;
@@ -225,7 +255,7 @@ public class Pollutants {
         stations = new ArrayList<>(
                 Station.find(Station.class, "PM10 = ?", "1")
         );
-        afterChange();
+        afterChange(PM10);
     }
     private void setPM2_5() {
         icon = R.drawable.ic_pm2;
@@ -235,7 +265,7 @@ public class Pollutants {
         stations = new ArrayList<>(
                 Station.find(Station.class, "PM25 = ?", "1")
         );
-        afterChange();
+        afterChange(PM2_5);
     }
     private void setSO2() {
         icon = R.drawable.ic_so2;
@@ -245,10 +275,12 @@ public class Pollutants {
         stations = new ArrayList<>(
                 Station.find(Station.class, "SO2 = ?", "1")
         );
-        afterChange();
+        afterChange(SO2);
     }
 
-    private void afterChange() {
+    private void afterChange(int pollutant) {
+        raw_value = Float.valueOf(pollutantsRaw.get(pollutant)[0]);
+        raw_value_unit = pollutantsRaw.get(pollutant)[1];
         int[] colors = getColors(aqi);
         color = colors[0];
         color_pressed = colors[1];
@@ -309,19 +341,6 @@ public class Pollutants {
     private int interpolateColor(int a, int b, int percentage) {
         float proportion = (float) (percentage / 100.0);
         return (int) new ArgbEvaluator().evaluate(proportion, a, b);
-    }
-
-    public void updatePollutant(String pollutant, int aqi) {
-        updatePollutant(pollutantIndexes.get(pollutant), aqi);
-    }
-
-
-
-    public void updatePollutant(int pollutant, int aqi) {
-        pollutantsAqi.put(pollutant, aqi);
-        if (pollutionCallback != null) {
-            pollutionCallback.pollutantUpdated(pollutant);
-        }
     }
 
     public HashMap<Station, ArrayList<Measurement>> getAllMeasurements(Integer startTime, Integer endTime) {

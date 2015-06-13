@@ -52,6 +52,14 @@ public class StationsActivity extends Activity {
         generateRandomStations();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mGVar.mMap.centerOnResume != null) {
+            finish();
+        }
+    }
+
     private void generateRandomStations() {
         if (Station.listAll(Station.class).size() != 0) {
             return;
@@ -94,8 +102,9 @@ public class StationsActivity extends Activity {
         mSlidingMenu.menu.showMenu(true);
     }
 
-    public void stationClicked(View view) {
+    public void portableStationClicked(View view) {
         Intent intent = new Intent(this, StationActivity.class);
+        intent.putExtra(StationActivity.STATION_TYPE_KEY, StationActivity.PORTABLE_STATION);
         this.startActivity(intent);
     }
 }
