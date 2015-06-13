@@ -1,6 +1,7 @@
 package eu.citi_sense.vic.citi_sense;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -75,6 +76,8 @@ public class StationActivity extends Activity {
     }
 
     public void analysisFABClicked(View view) {
+        Intent intent = new Intent(this, AnalysisActivity.class);
+        this.startActivity(intent);
     }
 
     public void backButtonClicked(View view) {

@@ -71,7 +71,8 @@
         </activity>
         <activity
             android:name=".StationActivity"
-            android:label="@string/title_activity_station" >
+            android:label="@string/title_activity_station"
+            android:screenOrientation="portrait">
         </activity>
     </application>
 

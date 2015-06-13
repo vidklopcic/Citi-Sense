@@ -19,8 +19,6 @@ import eu.citi_sense.vic.citi_sense.global.Databases.Station;
 import eu.citi_sense.vic.citi_sense.global.GlobalVariables;
 import eu.citi_sense.vic.citi_sense.global.Pollutants;
 import eu.citi_sense.vic.citi_sense.support_classes.Charts;
-import eu.citi_sense.vic.citi_sense.support_classes.sliding_menu.SlidingMenuHandler;
-import eu.citi_sense.vic.citi_sense.support_classes.sliding_menu.SlidingMenuListeners;
 
 
 public class StationsActivity extends Activity {
@@ -29,7 +27,6 @@ public class StationsActivity extends Activity {
     private static final int MINUTE = 60*1000;
     private GlobalVariables mGVar;
     private Charts mCharts = new Charts();
-    private SlidingMenuHandler mSlidingMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,16 +36,6 @@ public class StationsActivity extends Activity {
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
         );
         mGVar = (GlobalVariables) getApplicationContext();
-        mSlidingMenu = new SlidingMenuHandler(this);
-        LineData data = mGVar.data.getAQIData(24, 5);
-        LineChart chart = (LineChart) findViewById(R.id.sliding_menu_chart);
-        mCharts.setupAQISlidingChart(data, chart);
-        LinearLayout mapButton = (LinearLayout) findViewById(R.id.sliding_menu_map);
-        LinearLayout analysisButton = (LinearLayout) findViewById(R.id.sliding_menu_analysis);
-        LinearLayout stationsButton = (LinearLayout) findViewById(R.id.sliding_menu_stations);
-        new SlidingMenuListeners(mapButton, analysisButton, stationsButton,
-                SlidingMenuListeners.STATIONS_ACTIVITY, mSlidingMenu, this);
-
         generateRandomStations();
     }
 
@@ -74,9 +61,9 @@ public class StationsActivity extends Activity {
         tmp(new LatLng(46.04102930675535,14.470218569040298));
         tmp(new LatLng(46.073402512051366,14.473951198160648));
         tmp(new LatLng(46.05379514485974,14.495205022394655));
-        tmp(new LatLng(46.0550953220546,14.51019689440727));
-        tmp(new LatLng(46.01526246150808,14.553770720958708));
-        tmp(new LatLng(46.04337889485482,14.514065310359003));
+        tmp(new LatLng(46.0550953220546, 14.51019689440727));
+        tmp(new LatLng(46.01526246150808, 14.553770720958708));
+        tmp(new LatLng(46.04337889485482, 14.514065310359003));
     }
     private void tmp(LatLng position) {
         ArrayList<Measurement> measurementsArray = new ArrayList<>();
@@ -98,13 +85,19 @@ public class StationsActivity extends Activity {
         Log.d("asdfg", "finished");
     }
 
-    public void menuBtnClicked(View view) {
-        mSlidingMenu.menu.showMenu(true);
-    }
-
     public void portableStationClicked(View view) {
         Intent intent = new Intent(this, StationActivity.class);
         intent.putExtra(StationActivity.STATION_TYPE_KEY, StationActivity.PORTABLE_STATION);
         this.startActivity(intent);
+    }
+
+    public void backBtnClicked(View view) {
+        finish();
+    }
+
+    public void vesnaLocateBtnClicked(View view) {
+        mGVar.mMap.moveCameraWithLocation = true;
+        mGVar.mMap.centerOnResume = mGVar.mMap.location;
+        finish();
     }
 }
