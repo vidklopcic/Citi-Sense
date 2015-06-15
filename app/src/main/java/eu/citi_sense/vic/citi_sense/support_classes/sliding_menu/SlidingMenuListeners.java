@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 
 import eu.citi_sense.vic.citi_sense.AnalysisActivity;
+import eu.citi_sense.vic.citi_sense.InformationActivity;
 import eu.citi_sense.vic.citi_sense.StationsActivity;
 
 public class SlidingMenuListeners {
@@ -16,13 +17,15 @@ public class SlidingMenuListeners {
     private LinearLayout mapButton;
     private LinearLayout analysisButton;
     private LinearLayout stationsButton;
+    private LinearLayout informationButton;
     private Integer currentActivity;
     private Activity context;
     private SlidingMenuHandler slidingMenu;
     public SlidingMenuListeners(LinearLayout mapButton, LinearLayout analysisButton,
-                                LinearLayout stationsButton, Integer currentActivity,
+                                LinearLayout stationsButton, LinearLayout informationButton, Integer currentActivity,
                                 SlidingMenuHandler slidingMenu, Activity context) {
         this.currentActivity = currentActivity;
+        this.informationButton = informationButton;
         this.mapButton = mapButton;
         this.analysisButton = analysisButton;
         this.stationsButton = stationsButton;
@@ -73,5 +76,12 @@ public class SlidingMenuListeners {
             }
         });
 
+        informationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent mapActivityIntent = new Intent(context, InformationActivity.class);
+                context.startActivity(mapActivityIntent);
+            }
+        });
     }
 }

@@ -140,7 +140,8 @@ public abstract class MapBaseActivity extends FragmentActivity implements Action
         LinearLayout mapButton = (LinearLayout) findViewById(R.id.sliding_menu_map);
         LinearLayout analysisButton = (LinearLayout) findViewById(R.id.sliding_menu_analysis);
         LinearLayout stationsButton = (LinearLayout) findViewById(R.id.sliding_menu_stations);
-        new SlidingMenuListeners(mapButton, analysisButton, stationsButton,
+        LinearLayout informationButton = (LinearLayout) findViewById(R.id.sliding_menu_info);
+        new SlidingMenuListeners(mapButton, analysisButton, stationsButton, informationButton,
                 SlidingMenuListeners.MAP_ACTIVITY, mSlidingMenu, this);
         mContext = this;
         mActionBarFragment.hideMenu(false);
